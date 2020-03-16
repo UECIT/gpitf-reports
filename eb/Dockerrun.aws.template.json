@@ -1,0 +1,14 @@
+{
+    "AWSEBDockerrunVersion": "1",
+    "Image": {
+      "Name": "registry.gitlab.com/ems-test-harness/gpitf-reports:{{tag}}",
+      "Update": "true"
+    },
+    "Ports": [
+      {
+        "ContainerPort": "8088",
+        "HostPort": "8088"
+      }
+    ]
+  }
+  

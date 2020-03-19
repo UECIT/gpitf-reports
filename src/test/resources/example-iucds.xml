@@ -108,11 +108,13 @@
                                 <urn:code codeSystem="2.16.840.1.113883.1.11.17660" code="ER"/>
                                 <urn:location>
                                     <urn:name>Location</urn:name>
+                                    <urn:addr>Leeds, LS1 1AA, United Kingdom</urn:addr>
                                 </urn:location>
                                 <urn:serviceProviderOrganization>
                                     <urn:id root="serviceProvider"/>
                                     <urn:id root="2.16.840.1.113883.2.1.4.3" extension="AA100"/>
                                     <urn:name>Service Provider</urn:name>
+                                    <urn:addr>Service Provider Address, Leeds, UK</urn:addr>
                                     <urn:telecom value="tel:0123456789"/>
                                     <urn:standardIndustryClassCode codeSystem="org-type" code="SP"/>
                                 </urn:serviceProviderOrganization>

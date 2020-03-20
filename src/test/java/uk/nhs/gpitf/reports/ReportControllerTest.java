@@ -4,6 +4,7 @@ package uk.nhs.gpitf.reports;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,6 +12,7 @@ import static org.mockito.Mockito.when;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
+import org.hl7.fhir.dstu3.model.CarePlan;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.EpisodeOfCare;
 import org.hl7.fhir.dstu3.model.Location;
@@ -60,6 +62,8 @@ public class ReportControllerTest {
     verify(storageService, times(2))
         .create(any(Organization.class));
     verify(storageService).create(any(Location.class));
+    verify(storageService, never())
+        .create(any(CarePlan.class));
   }
 
   @Test
@@ -71,6 +75,7 @@ public class ReportControllerTest {
     verify(storageService).create(any(EpisodeOfCare.class));
     verify(storageService).create(any(Organization.class));
     verify(storageService).create(any(Location.class));
+    verify(storageService).create(any(CarePlan.class));
   }
 
   private void testTransform(URL resource) throws Exception {

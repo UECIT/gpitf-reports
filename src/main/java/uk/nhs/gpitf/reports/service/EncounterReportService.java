@@ -14,11 +14,14 @@ public class EncounterReportService {
   private final EncounterTransformer encounterTransformer;
 
   private final FhirStorageService storageService;
+  private final CarePlanService carePlanService;
 
   public Reference createEncounterReport(ClinicalDocumentDocument1 document) {
 
     Encounter encounter = encounterTransformer.transform(document);
     Reference encounterRef = storageService.create(encounter);
+
+    carePlanService.createCarePlans(document, encounterRef);
 
     return encounterRef;
   }

@@ -3,13 +3,16 @@ package uk.nhs.gpitf.reports.transform;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.google.common.collect.Iterables;
-import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Location;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.nhs.connect.iucds.cda.ucr.II;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01HealthCareFacility;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Location;
@@ -17,15 +20,19 @@ import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Place;
 import uk.nhs.gpitf.reports.Stub;
 import uk.nhs.gpitf.reports.constants.FHIRSystems;
 
+@RunWith(MockitoJUnitRunner.class)
 public class LocationTransformerTest {
 
+  @Mock
+  private AddressTransformer addressTransformer;
+
+  @InjectMocks
   private LocationTransformer locationTransformer;
 
   private POCDMT000002UK01Location documentLocation;
 
   @Before
   public void setup() {
-    locationTransformer = new LocationTransformer();
     documentLocation = POCDMT000002UK01Location.Factory.newInstance();
   }
 
@@ -53,12 +60,7 @@ public class LocationTransformerTest {
     Location location = locationTransformer.transform(documentLocation);
 
     assertThat(location.getName(), is("Name of location"));
-    Address address = location.getAddress();
-    assertThat(Iterables.getOnlyElement(address.getLine()).getValue(), is("1 Main Street"));
-    assertThat(address.getCity(), is("City"));
-    assertThat(address.getPostalCode(), is("NE1 4HH"));
-    assertThat(address.getCountry(), is("UK"));
-    assertThat(address.getText(), is("The Address of the Location"));
+    Mockito.verify(addressTransformer).transform(place.getAddr());
   }
 
   @Test
@@ -88,12 +90,7 @@ public class LocationTransformerTest {
     Location location = locationTransformer.transform(documentLocation);
 
     assertThat(location.getName(), is("Name of location"));
-    Address address = location.getAddress();
-    assertThat(Iterables.getOnlyElement(address.getLine()).getValue(), is("1 Main Street"));
-    assertThat(address.getCity(), is("City"));
-    assertThat(address.getPostalCode(), is("NE1 4HH"));
-    assertThat(address.getCountry(), is("UK"));
-    assertThat(address.getText(), is("The Address of the Location"));
+    Mockito.verify(addressTransformer).transform(place.getAddr());
     Identifier odsSite = location.getIdentifierFirstRep();
     assertThat(odsSite.getSystem(), is(FHIRSystems.ODS_SITE));
     assertThat(odsSite.getValue(), is("SITE"));

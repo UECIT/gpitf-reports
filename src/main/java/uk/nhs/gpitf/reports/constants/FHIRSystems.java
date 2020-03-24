@@ -8,6 +8,9 @@ public class FHIRSystems {
   public final String ODS_SITE = "https://fhir.nhs.uk/Id/ods-site-code";
   public final String NHS_NUMBER = "https://fhir.nhs.uk/Id/nhs-number";
 
+  public final String NHS_NUMBER_VERIFICATION_STATUS = "https://fhir.hl7.org.uk/STU3/CodeSystem/CareConnect-NHSNumberVerificationStatus-1";
+  public final String NHS_COMMUNICATION = "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect-NHSCommunication-1";
+
   public final String ACT_PRIORITY = "http://hl7.org/fhir/v3/ActPriority";
   public final String SNOMED = "http://snomed.info/sct";
   public final String DIAGNOSIS_ROLE = "http://hl7.org/fhir/diagnosis-role";

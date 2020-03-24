@@ -1,36 +1,41 @@
 package uk.nhs.gpitf.reports.transform;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-
-import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Practitioner;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.nhs.connect.iucds.cda.ucr.PN;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Person;
 import uk.nhs.gpitf.reports.Stub;
 
+@RunWith(MockitoJUnitRunner.class)
 public class PractitionerTransformerTest {
 
+  @Mock
+  private HumanNameTransformer humanNameTransformer;
+
+  @InjectMocks
   private PractitionerTransformer practitionerTransformer;
 
   private POCDMT000002UK01Person person;
 
   @Before
   public void setup() {
-    practitionerTransformer = new PractitionerTransformer();
     person = POCDMT000002UK01Person.Factory.newInstance();
   }
 
   @Test
   public void testTransform() {
-    person.setNameArray(new PN[]{Stub.personName()});
+    var name = Stub.fullPersonName();
+    person.setNameArray(new PN[]{name});
 
     Practitioner practitioner = practitionerTransformer.transform(person);
 
-    HumanName name = practitioner.getNameFirstRep();
-    assertThat(name.getNameAsSingleString(), is("Homer Simpson"));
+    Mockito.verify(humanNameTransformer).transform(Mockito.any(PN.class));
   }
 
 }

@@ -26,11 +26,11 @@ public class CarePlanTransformer {
     CarePlan carePlan = new CarePlan();
     POCDMT000002UK01Section carePlanSection = input.getCarePlanSection();
 
-    carePlan.setTitle(NodeUtil.getNodeValueString(carePlanSection.getTitle().getDomNode()));
+    carePlan.setTitle(NodeUtil.getNodeValueString(carePlanSection.getTitle()));
 
     //Hard coded to look where it is located in the POCD_EX200001GB02_01_A1_ITK.xml example.
     String carePlanTextContent =
-        NodeUtil.getNodeValueString(carePlanSection.getText().getContentArray(0).getDomNode());
+        NodeUtil.getNodeValueString(carePlanSection.getText().getContentArray(0));
 
     Narrative narrative = new Narrative();
     narrative.setDivAsString(carePlanTextContent);

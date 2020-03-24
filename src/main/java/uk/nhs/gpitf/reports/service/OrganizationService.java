@@ -36,8 +36,7 @@ public class OrganizationService {
   }
 
   public Reference createOrganization(POCDMT000002UK01Organization docOrg) {
-    Organization organization = organizationTransformer
-        .transformOrganization(docOrg);
+    Organization organization = organizationTransformer.transform(docOrg);
     return storageService.create(organization);
   }
 

@@ -13,6 +13,7 @@ import uk.nhs.gpitf.reports.service.EncounterParticipantService;
 import uk.nhs.gpitf.reports.service.EpisodeOfCareService;
 import uk.nhs.gpitf.reports.service.LocationService;
 import uk.nhs.gpitf.reports.service.OrganizationService;
+import uk.nhs.gpitf.reports.service.PatientService;
 import uk.nhs.gpitf.reports.service.ReasonService;
 import uk.nhs.gpitf.reports.util.DateUtil;
 
@@ -25,6 +26,7 @@ public class EncounterTransformer {
   private final EncounterParticipantService encounterParticipantService;
   private final EpisodeOfCareService episodeOfCareService;
   private final ReasonService reasonService;
+  private final PatientService patientService;
 
   public Encounter transform(ClinicalDocumentDocument1 document) {
 
@@ -44,7 +46,7 @@ public class EncounterTransformer {
     reasonService.createReason(clinicalDocument)
         .forEach(encounter::addReason);
 //    encounter.addType(); //TODO: No mapping exists.
-//    encounter.setSubject() TODO: NCTH-380
+    encounter.setSubject(patientService.createPatient(clinicalDocument));
 //    encounter.setAppointment() TODO: NCTH-395
 //    encounter.addDiagnosis(); //TODO: No mapping exists.
 

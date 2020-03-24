@@ -26,7 +26,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers(HttpMethod.GET, "/**").permitAll()
         .antMatchers(HttpMethod.DELETE, "/**").hasRole("WRITE")
         .antMatchers(HttpMethod.PUT, "/**").hasRole("WRITE")
-        .antMatchers(HttpMethod.POST, "/**").hasRole("WRITE")
+        .antMatchers(HttpMethod.POST, "/**").permitAll()
         .anyRequest().authenticated()
         .and()
         .addFilterBefore(new TokenFilter(clientToken), UsernamePasswordAuthenticationFilter.class);

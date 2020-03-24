@@ -28,6 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.nhs.gpitf.reports.controller.ReportController;
 import uk.nhs.gpitf.reports.service.FhirStorageService;
 
 @RunWith(SpringJUnit4ClassRunner.class)

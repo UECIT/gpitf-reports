@@ -8,6 +8,7 @@ import org.hl7.fhir.dstu3.model.Location;
 import org.springframework.stereotype.Component;
 import uk.nhs.connect.iucds.cda.ucr.CE;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01HealthCareFacility;
+import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01IntendedRecipient;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Location;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Place;
 import uk.nhs.gpitf.reports.constants.FHIRSystems;
@@ -20,7 +21,7 @@ public class LocationTransformer {
 
   private final AddressTransformer addressTransformer;
 
-  public Location transform(POCDMT000002UK01Location documentLocation) {
+  public Location transformLocation(POCDMT000002UK01Location documentLocation) {
 
     POCDMT000002UK01HealthCareFacility healthCareFacility = documentLocation
         .getHealthCareFacility();
@@ -43,6 +44,15 @@ public class LocationTransformer {
       }
     }
 
+    return location;
+  }
+
+  public Location transformIntendedRecipientLocation(
+      POCDMT000002UK01IntendedRecipient intendedRecipient) {
+    Location location = new Location();
+    if (intendedRecipient.sizeOfAddrArray() > 0) {
+      location.setAddress(addressTransformer.transform(intendedRecipient.getAddrArray(0)));
+    }
     return location;
   }
 

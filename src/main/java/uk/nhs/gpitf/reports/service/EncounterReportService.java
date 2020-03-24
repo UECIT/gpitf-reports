@@ -18,9 +18,11 @@ public class EncounterReportService {
   private static final String CLINICAL_DOCUMENT_NODE_NAME = "ClinicalDocument";
 
   private final EncounterTransformer encounterTransformer;
+  private final ReferralRequestService referralRequestService;
+  private final CarePlanService carePlanService;
+  private final DeviceService deviceService;
 
   private final FhirStorageService storageService;
-  private final CarePlanService carePlanService;
 
   public Reference createEncounterReport(String xmlReportString) throws XmlException {
 
@@ -31,9 +33,12 @@ public class EncounterReportService {
 
     document = ClinicalDocumentDocument1.Factory.parse(findClinicalDoc(envelopedDocument));
 
+    Reference transformerDevice = deviceService.createTransformerDevice();
+
     Encounter encounter = encounterTransformer.transform(document);
     Reference encounterRef = storageService.create(encounter);
 
+    referralRequestService.createReferralRequest(document, encounter, transformerDevice);
     carePlanService.createCarePlans(document, encounterRef);
 
     return encounterRef;

@@ -4,6 +4,7 @@ import lombok.experimental.UtilityClass;
 import org.apache.xmlbeans.XmlString.Factory;
 import uk.nhs.connect.iucds.cda.ucr.AD;
 import uk.nhs.connect.iucds.cda.ucr.CE;
+import uk.nhs.connect.iucds.cda.ucr.CV;
 import uk.nhs.connect.iucds.cda.ucr.EN;
 import uk.nhs.connect.iucds.cda.ucr.II;
 import uk.nhs.connect.iucds.cda.ucr.ON;
@@ -86,6 +87,7 @@ public class Stub {
     ii.setAssigningAuthorityName(assigner);
     return ii;
   }
+
   public II createII(String root, String extension) {
     II ii = II.Factory.newInstance();
     ii.setRoot(root);
@@ -93,4 +95,11 @@ public class Stub {
     return ii;
   }
 
+  public CV codedValue(String system, String code, String display) {
+    CV cv = CV.Factory.newInstance();
+    cv.setCodeSystem(system);
+    cv.setCode(code);
+    cv.setDisplayName(display);
+    return cv;
+  }
 }

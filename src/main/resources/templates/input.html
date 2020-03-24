@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <style th:inline="css">
+        textarea {
+            width: 1000px;
+            height: 400px;
+        }
+    </style>
+    <title>111 Report Transformer</title>
+</head>
+<body>
+    <h1>Transform XML Report</h1>
+    <form th:action="@{/transform}" th:object="${inputForm}" method="post">
+        <textarea th:field="*{reportXml}" placeholder="Paste XML Here"></textarea>
+        <p><input type="submit" value="Transform"/></p>
+    </form>
+</body>
+</html>

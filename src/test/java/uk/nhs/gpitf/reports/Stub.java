@@ -39,12 +39,19 @@ public class Stub {
     return name;
   }
 
-  public PN personName() {
+  public PN fullPersonName() {
     PN name = PN.Factory.newInstance();
 
-    name.set(Factory.newValue("Name of person"));
     name.addNewGiven().set(Factory.newValue("Homer"));
     name.addNewFamily().set(Factory.newValue("Simpson"));
+
+    return name;
+  }
+
+  public PN simplePersonName() {
+    PN name = PN.Factory.newInstance();
+
+    name.set(Factory.newValue("Stewie Griffin"));
 
     return name;
   }
@@ -61,24 +68,29 @@ public class Stub {
   }
 
   public II odsSite() {
-    II ii = II.Factory.newInstance();
-
-    ii.setRoot(FHIRSystems.ODS_SITE);
-    ii.setExtension("SITE");
-    return ii;
+    return createII(FHIRSystems.ODS_SITE, "SITE");
   }
 
-  public static II odsCode() {
-    II ii = II.Factory.newInstance();
-
-    ii.setRoot(IUCDSSystems.ODS_ORGANIZATION);
-    ii.setExtension("ODS_CODE");
-    return ii;
+  public II odsCode() {
+    return createII(IUCDSSystems.ODS_ORGANIZATION, "ODS_CODE");
   }
 
-  public static TEL tel() {
+  public TEL tel() {
     TEL tel = TEL.Factory.newInstance();
     tel.setValue("012345678");
     return tel;
   }
+
+  public II createII(String root, String extension, String assigner) {
+    II ii = createII(root, extension);
+    ii.setAssigningAuthorityName(assigner);
+    return ii;
+  }
+  public II createII(String root, String extension) {
+    II ii = II.Factory.newInstance();
+    ii.setRoot(root);
+    ii.setExtension(extension);
+    return ii;
+  }
+
 }

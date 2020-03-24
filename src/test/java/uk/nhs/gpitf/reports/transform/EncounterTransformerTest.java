@@ -21,6 +21,7 @@ import uk.nhs.gpitf.reports.service.EncounterParticipantService;
 import uk.nhs.gpitf.reports.service.EpisodeOfCareService;
 import uk.nhs.gpitf.reports.service.LocationService;
 import uk.nhs.gpitf.reports.service.OrganizationService;
+import uk.nhs.gpitf.reports.service.PatientService;
 import uk.nhs.gpitf.reports.service.ReasonService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -44,6 +45,9 @@ public class EncounterTransformerTest {
   @Mock
   private ReasonService reasonService;
 
+  @Mock
+  private PatientService patientService;
+
   @Test
   public void testTransform() throws Exception {
     URL resource = getClass().getResource("/example-clinical-doc.xml");
@@ -63,7 +67,6 @@ public class EncounterTransformerTest {
     verify(locationService).createLocation(clinicalDocument);
     verify(organizationService).createServiceProvider(clinicalDocument);
     verify(reasonService).createReason(clinicalDocument);
+    verify(patientService).createPatient(clinicalDocument);
   }
-
-
 }

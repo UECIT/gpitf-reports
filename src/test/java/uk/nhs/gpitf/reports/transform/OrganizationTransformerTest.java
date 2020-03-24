@@ -32,7 +32,7 @@ public class OrganizationTransformerTest {
   public void transformMinOrg() {
     documentOrg.setIdArray(new II[]{Stub.odsCode()});
 
-    Organization organization = organizationTransformer.transformOrganization(documentOrg);
+    Organization organization = organizationTransformer.transform(documentOrg);
 
     Identifier odsSite = organization.getIdentifierFirstRep();
     assertThat(odsSite.getSystem(), is(FHIRSystems.ODS_ORGANIZATION));
@@ -46,12 +46,11 @@ public class OrganizationTransformerTest {
     documentOrg.setTelecomArray(new TEL[]{Stub.tel()});
     documentOrg.setAddrArray(new AD[]{Stub.addr()});
 
-    Organization organization = organizationTransformer.transformOrganization(documentOrg);
+    Organization organization = organizationTransformer.transform(documentOrg);
 
     Identifier odsSite = organization.getIdentifierFirstRep();
     assertThat(odsSite.getSystem(), is(FHIRSystems.ODS_ORGANIZATION));
     assertThat(odsSite.getValue(), is("ODS_CODE"));
-    assertThat(organization.getName(), is("Name of organization"));
     assertThat(organization.getTelecomFirstRep().getValue(), is("012345678"));
     //TODO: NCTH-595
     Address address = organization.getAddressFirstRep();

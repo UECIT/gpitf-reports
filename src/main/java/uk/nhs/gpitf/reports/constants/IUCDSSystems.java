@@ -18,6 +18,8 @@ public class IUCDSSystems {
    * Local Person Identifier
    */
   public final String LOCAL_PERSON = "2.16.840.1.113883.2.1.3.2.4.18.24";
+  public final String NHS_NUMBER_VERIFIED =  "2.16.840.1.113883.2.1.4.1";
+  public final String NHS_NUMBER_UNVERIFIED =  "2.16.840.1.113883.2.1.3.2.4.18.23";
 
   /**
    * Attribute used to indicate the content (template) type of the following section in an NPfIT CDA

@@ -10,7 +10,8 @@ public class DateUtil {
 
   private final String[] FORMATS = {
       "yyyyMMddHHmmssZ",
-      "yyyyMMddHHmmX"
+      "yyyyMMddHHmmX",
+      "yyyyMMdd"
   };
 
   public Date parse(String date) {

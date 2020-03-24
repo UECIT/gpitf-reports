@@ -74,8 +74,8 @@ public class ReportControllerTest {
     verify(storageService).create(any(Encounter.class));
     verify(storageService).create(any(Practitioner.class));
     verify(storageService).create(any(EpisodeOfCare.class));
-    verify(storageService, times(2)).create(any(Organization.class));
-    verify(storageService).create(any(Location.class));
+    verify(storageService, times(4)).create(any(Organization.class));
+    verify(storageService, times(2)).create(any(Location.class));
     verify(storageService).create(any(CarePlan.class));
   }
 

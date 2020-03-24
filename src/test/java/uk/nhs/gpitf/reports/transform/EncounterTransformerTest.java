@@ -22,7 +22,6 @@ import uk.nhs.gpitf.reports.service.EpisodeOfCareService;
 import uk.nhs.gpitf.reports.service.LocationService;
 import uk.nhs.gpitf.reports.service.OrganizationService;
 import uk.nhs.gpitf.reports.service.PatientService;
-import uk.nhs.gpitf.reports.service.ReasonService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EncounterTransformerTest {
@@ -43,9 +42,6 @@ public class EncounterTransformerTest {
   private EpisodeOfCareService episodeOfCareService;
 
   @Mock
-  private ReasonService reasonService;
-
-  @Mock
   private PatientService patientService;
 
   @Test
@@ -64,9 +60,8 @@ public class EncounterTransformerTest {
     POCDMT000002UK01ClinicalDocument1 clinicalDocument = document.getClinicalDocument();
     verify(episodeOfCareService).createEpisodeOfCare(clinicalDocument);
     verify(encounterParticipantService).createParticipants(clinicalDocument);
-    verify(locationService).createLocation(clinicalDocument);
+    verify(locationService).createFromEncompassingEncounter(clinicalDocument);
     verify(organizationService).createServiceProvider(clinicalDocument);
-    verify(reasonService).createReason(clinicalDocument);
     verify(patientService).createPatient(clinicalDocument);
   }
 }

@@ -50,6 +50,8 @@ public class IUCDSSystems {
   public final String NHS111_ENCOUNTER = "2.16.840.1.113883.2.1.3.2.4.17.326";
 
   public final String SNOMED = "2.16.840.1.113883.2.1.3.2.4.15";
+  public final String UC_DISCRIMINATOR = "2.16.840.1.113883.2.1.3.2.4.17.540";
+  public final String CLINICAL_DISCRIMINATORS = "2.16.840.1.113883.2.1.3.2.4.24";
 
   /**
    * Attribute used to indicate the HL7 message artefact id
@@ -64,6 +66,4 @@ public class IUCDSSystems {
   public final String HL7_RMIMS = "2.16.840.1.113883.1.3";
 
   public final String SERVICE_DELIVERY_LOCATION_ROLE_TYPE = "2.16.840.1.113883.1.11.17660";
-
-  public final String CLINICAL_DISCRIMINATOR = "COCD_TP146092GB01#ClinicalDiscriminator";
 }

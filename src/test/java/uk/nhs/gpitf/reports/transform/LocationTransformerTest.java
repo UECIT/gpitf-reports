@@ -40,7 +40,7 @@ public class LocationTransformerTest {
   public void transformLocationCode() {
     documentLocation.addNewHealthCareFacility().setCode(Stub.code());
 
-    Location location = locationTransformer.transform(documentLocation);
+    Location location = locationTransformer.transformLocation(documentLocation);
 
     Coding typeCoding = location.getType().getCodingFirstRep();
     assertThat(typeCoding.getSystem(), is(FHIRSystems.SERVICE_DELIVERY_LOCATION_ROLE_TYPE));
@@ -57,7 +57,7 @@ public class LocationTransformerTest {
     place.setAddr(Stub.addr());
     place.setName(Stub.name());
 
-    Location location = locationTransformer.transform(documentLocation);
+    Location location = locationTransformer.transformLocation(documentLocation);
 
     assertThat(location.getName(), is("Name of location"));
     Mockito.verify(addressTransformer).transform(place.getAddr());
@@ -70,7 +70,7 @@ public class LocationTransformerTest {
     healthCareFacility.setCode(Stub.code());
     healthCareFacility.setIdArray(new II[]{Stub.odsSite()});
 
-    Location location = locationTransformer.transform(documentLocation);
+    Location location = locationTransformer.transformLocation(documentLocation);
 
     Identifier odsSite = location.getIdentifierFirstRep();
     assertThat(odsSite.getSystem(), is(FHIRSystems.ODS_SITE));
@@ -87,7 +87,7 @@ public class LocationTransformerTest {
     place.setName(Stub.name());
     healthCareFacility.setIdArray(new II[]{Stub.odsSite()});
 
-    Location location = locationTransformer.transform(documentLocation);
+    Location location = locationTransformer.transformLocation(documentLocation);
 
     assertThat(location.getName(), is("Name of location"));
     Mockito.verify(addressTransformer).transform(place.getAddr());

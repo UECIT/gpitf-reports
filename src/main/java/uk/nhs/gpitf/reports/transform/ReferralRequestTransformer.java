@@ -21,7 +21,6 @@ import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralRequestRequesterComponen
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralRequestStatus;
 import org.springframework.stereotype.Component;
 import uk.nhs.connect.iucds.cda.ucr.CV;
-import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Component2;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Component3;
@@ -31,6 +30,7 @@ import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Observation;
 import uk.nhs.gpitf.reports.constants.FHIRSystems;
 import uk.nhs.gpitf.reports.constants.IUCDSSystems;
 import uk.nhs.gpitf.reports.constants.IUCDSTemplates;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.service.ConditionService;
 import uk.nhs.gpitf.reports.service.HealthcareServiceService;
 
@@ -41,11 +41,10 @@ public class ReferralRequestTransformer {
   private final ConditionService conditionService;
   private final HealthcareServiceService healthcareServiceService;
 
-  public ReferralRequest transform(ClinicalDocumentDocument1 document,
+  public ReferralRequest transform(InputBundle inputBundle,
       Encounter encounter, Reference transformerDevice) {
 
-    POCDMT000002UK01ClinicalDocument1 clinicalDocument = document.getClinicalDocument();
-
+    POCDMT000002UK01ClinicalDocument1 clinicalDocument = inputBundle.getClinicalDocument();
     ReferralRequest referralRequest = new ReferralRequest();
 
     // definition MAY be populated - ActivityDefinition not currently part of ER guidance
@@ -64,7 +63,7 @@ public class ReferralRequestTransformer {
         .setSubject(encounter.getSubject())
         .setContext(new Reference(encounter))
         .addReasonReference(createReasonCondition(encounter,
-            transformClinicalDiscriminator(clinicalDocument)))
+            transformClinicalDiscriminator(inputBundle.getClinicalDocument())))
         .setOccurrence(new Period()
             .setStart(now)
             .setEnd(Date.from(now.toInstant().plusSeconds(60 * 60))))

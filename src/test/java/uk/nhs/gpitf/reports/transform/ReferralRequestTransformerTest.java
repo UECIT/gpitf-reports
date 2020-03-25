@@ -24,11 +24,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1;
 import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1.Factory;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01InformationRecipient;
 import uk.nhs.gpitf.reports.constants.FHIRSystems;
 import uk.nhs.gpitf.reports.constants.IUCDSSystems;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.service.ConditionService;
 import uk.nhs.gpitf.reports.service.HealthcareServiceService;
 
@@ -44,7 +44,7 @@ public class ReferralRequestTransformerTest {
   @InjectMocks
   private ReferralRequestTransformer referralRequestTransformer;
 
-  private ClinicalDocumentDocument1 clinicalDocument;
+  private InputBundle inputBundle;
   private Encounter encounter;
 
   private Reference patientRef = new Reference("Patient/1");
@@ -55,7 +55,8 @@ public class ReferralRequestTransformerTest {
   @Before
   public void setup() throws IOException, XmlException {
     URL resource = getClass().getResource("/example-clinical-doc.xml");
-    clinicalDocument = Factory.parse(resource);
+    inputBundle = new InputBundle();
+    inputBundle.setClinicalDocument(Factory.parse(resource).getClinicalDocument());
 
     encounter = new Encounter();
     encounter
@@ -72,7 +73,7 @@ public class ReferralRequestTransformerTest {
   public void testTransform() {
 
     ReferralRequest referralRequest = referralRequestTransformer
-        .transform(clinicalDocument, encounter, deviceRef);
+        .transform(inputBundle, encounter, deviceRef);
 
     assertEquals(ReferralRequestStatus.ACTIVE, referralRequest.getStatus());
     assertEquals(ReferralCategory.PLAN, referralRequest.getIntent());

@@ -3,6 +3,7 @@ package uk.nhs.gpitf.reports.transform;
 import static org.exparity.hamcrest.date.DateMatchers.isInstant;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.verify;
 
 import java.net.URL;
@@ -14,9 +15,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1;
 import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1.Factory;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.service.EncounterParticipantService;
 import uk.nhs.gpitf.reports.service.EpisodeOfCareService;
 import uk.nhs.gpitf.reports.service.LocationService;
@@ -47,9 +48,10 @@ public class EncounterTransformerTest {
   @Test
   public void testTransform() throws Exception {
     URL resource = getClass().getResource("/example-clinical-doc.xml");
-    ClinicalDocumentDocument1 document = Factory.parse(resource);
+    var inputBundle = new InputBundle();
+    inputBundle.setClinicalDocument(Factory.parse(resource).getClinicalDocument());
 
-    Encounter encounter = encounterTransformer.transform(document);
+    Encounter encounter = encounterTransformer.transform(inputBundle);
 
     assertThat(encounter.getPeriod().getStart(),
         isInstant(2017, Month.JANUARY, 1, 19, 45, 0, 0));
@@ -57,8 +59,8 @@ public class EncounterTransformerTest {
         isInstant(2017, Month.JANUARY, 1, 20, 15, 0, 0));
     assertThat(encounter.getStatus(), is(EncounterStatus.FINISHED));
 
-    POCDMT000002UK01ClinicalDocument1 clinicalDocument = document.getClinicalDocument();
-    verify(episodeOfCareService).createEpisodeOfCare(clinicalDocument);
+    POCDMT000002UK01ClinicalDocument1 clinicalDocument = inputBundle.getClinicalDocument();
+    verify(episodeOfCareService).createEpisodeOfCare(same(clinicalDocument));
     verify(encounterParticipantService).createParticipants(clinicalDocument);
     verify(locationService).createFromEncompassingEncounter(clinicalDocument);
     verify(organizationService).createServiceProvider(clinicalDocument);

@@ -10,13 +10,13 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.springframework.stereotype.Service;
 import uk.nhs.connect.iucds.cda.ucr.CE;
-import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Component3;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Component5;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Section;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01StructuredBody;
 import uk.nhs.gpitf.reports.constants.IUCDSSystems;
 import uk.nhs.gpitf.reports.constants.SnomedCodes;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.transform.CarePlanTransformer;
 import uk.nhs.gpitf.reports.transform.CarePlanTransformer.CarePlanInput;
 
@@ -28,11 +28,9 @@ public class CarePlanService {
 
   private final CarePlanTransformer carePlanTransformer;
 
-  public List<Reference> createCarePlans(
-      ClinicalDocumentDocument1 document,
-      Reference encounterRef) {
+  public List<Reference> createCarePlans(InputBundle inputBundle, Reference encounterRef) {
 
-    POCDMT000002UK01StructuredBody structuredBody = document.getClinicalDocument()
+    POCDMT000002UK01StructuredBody structuredBody = inputBundle.getClinicalDocument()
         .getComponent()
         .getStructuredBody();
 

@@ -6,9 +6,9 @@ import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Encounter.EncounterStatus;
 import org.hl7.fhir.dstu3.model.Period;
 import org.springframework.stereotype.Component;
-import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1;
 import uk.nhs.connect.iucds.cda.ucr.IVLTS;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.service.EncounterParticipantService;
 import uk.nhs.gpitf.reports.service.EpisodeOfCareService;
 import uk.nhs.gpitf.reports.service.LocationService;
@@ -26,9 +26,9 @@ public class EncounterTransformer {
   private final EpisodeOfCareService episodeOfCareService;
   private final PatientService patientService;
 
-  public Encounter transform(ClinicalDocumentDocument1 document) {
+  public Encounter transform(InputBundle inputBundle) {
 
-    POCDMT000002UK01ClinicalDocument1 clinicalDocument = document.getClinicalDocument();
+    POCDMT000002UK01ClinicalDocument1 clinicalDocument = inputBundle.getClinicalDocument();
 
     Encounter encounter = new Encounter();
     encounter.setStatus(EncounterStatus.FINISHED);

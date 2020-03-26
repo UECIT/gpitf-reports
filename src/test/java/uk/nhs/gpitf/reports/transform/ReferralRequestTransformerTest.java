@@ -27,7 +27,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1.Factory;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01InformationRecipient;
 import uk.nhs.gpitf.reports.constants.FHIRSystems;
-import uk.nhs.gpitf.reports.constants.IUCDSSystems;
 import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.service.ConditionService;
 import uk.nhs.gpitf.reports.service.HealthcareServiceService;
@@ -106,11 +105,6 @@ public class ReferralRequestTransformerTest {
         condition.getCode().getCoding().stream().anyMatch(coding ->
             coding.getSystem().equals(FHIRSystems.SNOMED)
                 && coding.getCode().equals("22298006")
-        ));
-    assertTrue("Condition missing pathways code",
-        condition.getCode().getCoding().stream().anyMatch(coding ->
-            coding.getSystem().equals(IUCDSSystems.CLINICAL_DISCRIMINATORS)
-                && coding.getCode().equals("Dx011")
         ));
   }
 }

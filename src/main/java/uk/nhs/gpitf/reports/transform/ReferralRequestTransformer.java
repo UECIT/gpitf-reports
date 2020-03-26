@@ -1,13 +1,11 @@
 package uk.nhs.gpitf.reports.transform;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
 import org.hl7.fhir.dstu3.model.Condition.ConditionVerificationStatus;
@@ -22,17 +20,15 @@ import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralRequestStatus;
 import org.springframework.stereotype.Component;
 import uk.nhs.connect.iucds.cda.ucr.CV;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
-import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Component2;
-import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Component3;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Entry;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01InformationRecipient;
-import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Observation;
-import uk.nhs.gpitf.reports.constants.FHIRSystems;
 import uk.nhs.gpitf.reports.constants.IUCDSSystems;
 import uk.nhs.gpitf.reports.constants.IUCDSTemplates;
 import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.service.ConditionService;
 import uk.nhs.gpitf.reports.service.HealthcareServiceService;
+import uk.nhs.gpitf.reports.util.CodeUtil;
+import uk.nhs.gpitf.reports.util.StructuredBodyUtil;
 
 @Component
 @RequiredArgsConstructor
@@ -62,8 +58,6 @@ public class ReferralRequestTransformer {
         .setPriority(ReferralPriority.ROUTINE)
         .setSubject(encounter.getSubject())
         .setContext(new Reference(encounter))
-        .addReasonReference(createReasonCondition(encounter,
-            transformClinicalDiscriminator(inputBundle.getClinicalDocument())))
         .setOccurrence(new Period()
             .setStart(now)
             .setEnd(Date.from(now.toInstant().plusSeconds(60 * 60))))
@@ -72,11 +66,13 @@ public class ReferralRequestTransformer {
             .setAgent(transformerDevice)
             .setOnBehalfOf(encounter.getServiceProvider()));
 
-    if (clinicalDocument.sizeOfInformationRecipientArray() > 0) {
-      for (POCDMT000002UK01InformationRecipient recipient :
-          clinicalDocument.getInformationRecipientArray()) {
-        referralRequest.addRecipient(healthcareServiceService.createHealthcareService(recipient));
-      }
+    for (CodeableConcept code : getClinicalDiscriminatorCodes(inputBundle.getClinicalDocument())) {
+      referralRequest.addReasonReference(createReasonCondition(encounter, code));
+    }
+
+    for (POCDMT000002UK01InformationRecipient recipient :
+        clinicalDocument.getInformationRecipientArray()) {
+      referralRequest.addRecipient(healthcareServiceService.createHealthcareService(recipient));
     }
 
     // TODO description SHOULD be populated by the CDSS - pathways
@@ -108,59 +104,22 @@ public class ReferralRequestTransformer {
     return conditionService.create(condition);
   }
 
-  private CodeableConcept transformClinicalDiscriminator(
+  private List<CodeableConcept> getClinicalDiscriminatorCodes(
       POCDMT000002UK01ClinicalDocument1 clinicalDocument) {
 
-    POCDMT000002UK01Component2 component = clinicalDocument.getComponent();
-    if (component == null || !component.isSetStructuredBody()) {
-      return null;
+    var structuredBody = StructuredBodyUtil.getStructuredBody(clinicalDocument);
+    if (structuredBody == null) {
+      return Collections.emptyList();
     }
-
-    List<Coding> reasonComponents = getReasonComponents(
-        component.getStructuredBody().getComponentArray());
-
-    return new CodeableConcept()
-        .setCoding(reasonComponents)
-        .setText(reasonComponents.stream()
-            .findFirst()
-            .map(Coding::getDisplay)
-            .orElse(null)
-        );
-  }
-
-  private List<Coding> getReasonComponents(POCDMT000002UK01Component3[] componentArray) {
-    POCDMT000002UK01Entry[] entryArray = componentArray[0]
-        .getSection()
-        .getEntryArray();
-
-    return Arrays.stream(entryArray)
+    return StructuredBodyUtil
+        .getEntriesOfType(structuredBody, IUCDSTemplates.CLINICAL_DISCRIMINATOR)
+        .stream()
         .filter(POCDMT000002UK01Entry::isSetObservation)
         .map(POCDMT000002UK01Entry::getObservation)
-        .filter(isClinicalDiscriminator())
         .map(obs -> (CV) obs.getValueArray(0))
-        .map(this::createCoding)
+        .filter(cv -> IUCDSSystems.SNOMED.equals(cv.getCodeSystem()))
+        .map(CodeUtil::createCodeableConceptFromCE)
         .collect(Collectors.toUnmodifiableList());
   }
 
-  private Coding createCoding(CV cv) {
-    return new Coding(
-        mapSystem(cv.getCodeSystem()),
-        cv.getCode(),
-        cv.getDisplayName()
-    );
-  }
-
-  private String mapSystem(String codeSystem) {
-    switch (codeSystem) {
-      case IUCDSSystems.SNOMED:
-        return FHIRSystems.SNOMED;
-      default:
-        return codeSystem;
-    }
-  }
-
-  private Predicate<POCDMT000002UK01Observation> isClinicalDiscriminator() {
-    return obs -> Arrays.stream(obs.getTemplateIdArray())
-        .anyMatch(id -> IUCDSTemplates.CLINICAL_DISCRIMINATOR.equals(id.getExtension()));
-  }
 }

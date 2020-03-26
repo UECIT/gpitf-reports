@@ -19,6 +19,7 @@ import uk.nhs.gpitf.reports.constants.SnomedCodes;
 import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.transform.CarePlanTransformer;
 import uk.nhs.gpitf.reports.transform.CarePlanTransformer.CarePlanInput;
+import uk.nhs.gpitf.reports.util.StructuredBodyUtil;
 
 @Service
 @RequiredArgsConstructor
@@ -30,9 +31,8 @@ public class CarePlanService {
 
   public List<Reference> createCarePlans(InputBundle inputBundle, Reference encounterRef) {
 
-    POCDMT000002UK01StructuredBody structuredBody = inputBundle.getClinicalDocument()
-        .getComponent()
-        .getStructuredBody();
+    POCDMT000002UK01StructuredBody structuredBody =
+        StructuredBodyUtil.getStructuredBody(inputBundle.getClinicalDocument());
 
     return Arrays.stream(structuredBody.getComponentArray())
         .map(POCDMT000002UK01Component3::getSection)

@@ -1,8 +1,5 @@
 package uk.nhs.gpitf.reports.service;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.xmlbeans.XmlException;
@@ -14,15 +11,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
-import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Component3;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Entry;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ObservationMedia;
-import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Section;
-import uk.nhs.connect.npfit.hl7.localisation.TemplateContent;
 import uk.nhs.gpitf.reports.constants.IUCDSTemplates;
 import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.transform.EncounterTransformer;
 import uk.nhs.gpitf.reports.util.NodeUtil;
+import uk.nhs.gpitf.reports.util.StructuredBodyUtil;
 import uk.nhs.itk.envelope.DistributionEnvelopeDocument;
 
 @Service
@@ -34,6 +29,7 @@ public class EncounterReportService {
   private final EncounterTransformer encounterTransformer;
   private final ReferralRequestService referralRequestService;
   private final CarePlanService carePlanService;
+  private final ConsentService consentService;
   private final DeviceService deviceService;
 
   private final FhirStorageService storageService;
@@ -58,29 +54,16 @@ public class EncounterReportService {
 
     referralRequestService.createReferralRequest(inputBundle, encounter, transformerDevice);
     carePlanService.createCarePlans(inputBundle, encounterRef);
+    consentService.createConsent(inputBundle, encounter);
 
     return encounterRef;
   }
 
-  private boolean isPathwaysEntry(POCDMT000002UK01Entry entry) {
-    var contentId = Optional.ofNullable(entry)
-        .map(POCDMT000002UK01Entry::getContentId)
-        .map(TemplateContent::getExtension)
-        .orElse(null);
-    return IUCDSTemplates.OBSERVATION_MEDIA.equals(contentId);
-  }
   private String findPathwaysCase(POCDMT000002UK01ClinicalDocument1 document) {
-    var components = document.getComponent()
-        .getStructuredBody()
-        .getComponentArray();
-
-    return Stream.of(components)
-        .map(POCDMT000002UK01Component3::getSection)
-        .filter(Objects::nonNull)
-        .map(POCDMT000002UK01Section::getEntryArray)
-        .filter(Objects::nonNull)
-        .flatMap(Stream::of)
-        .filter(this::isPathwaysEntry)
+    return StructuredBodyUtil.getEntriesOfType(
+        StructuredBodyUtil.getStructuredBody(document),
+        IUCDSTemplates.OBSERVATION_MEDIA)
+        .stream()
         .findFirst()
         .map(POCDMT000002UK01Entry::getObservationMedia)
         .map(POCDMT000002UK01ObservationMedia::getValue)
@@ -100,7 +83,7 @@ public class EncounterReportService {
         .getDomNode()
         .getChildNodes();
 
-    for (int i=0; i < childNodes.getLength(); i++) {
+    for (int i = 0; i < childNodes.getLength(); i++) {
       Node node = childNodes.item(i);
 
       if (node.getNodeName().contains(CLINICAL_DOCUMENT_NODE_NAME)) {

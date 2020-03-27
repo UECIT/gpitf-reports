@@ -7,8 +7,11 @@ import ca.uhn.fhir.rest.client.api.IHttpRequest;
 import ca.uhn.fhir.rest.client.api.IHttpResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
+import org.hl7.fhir.instance.model.api.IIdType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -26,7 +29,8 @@ public class FhirStorageService {
   private String fhirServerAuthToken;
 
   /**
-   * Updates a record with an existing ID, or {@link #create(Resource)} a new record if the ID is missing
+   * Updates a record with an existing ID, or {@link #create(Resource)} a new record if the ID is
+   * missing
    *
    * @param resource the resource to update on the remote server
    * @return a reference to the stored resource
@@ -68,5 +72,19 @@ public class FhirStorageService {
     });
 
     return iGenericClient;
+  }
+
+  public Bundle getEncounterReport(Reference reference) {
+    IIdType referenceElement = reference.getReferenceElement();
+    String baseUrl = referenceElement.getBaseUrl();
+    String encounterId = referenceElement.getIdPart();
+
+    return context.newRestfulGenericClient(baseUrl)
+        .search().forResource(Encounter.class)
+        .where(Encounter.RES_ID.exactly().identifier(encounterId))
+        .include(Encounter.INCLUDE_ALL)
+        .revInclude(Encounter.INCLUDE_ALL)
+        .returnBundle(Bundle.class)
+        .execute();
   }
 }

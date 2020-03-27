@@ -6,7 +6,4 @@ import lombok.Data;
 public class InputForm {
 
   private String reportXml;
-  private String encounterId;
-  private String errorMessage;
-
 }

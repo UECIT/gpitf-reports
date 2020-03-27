@@ -3,6 +3,7 @@ package uk.nhs.gpitf.reports.service;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.xmlbeans.XmlException;
+import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.nhspathways.webservices.pathways.pathwayscase.PathwaysCaseDocument;
@@ -91,5 +92,9 @@ public class EncounterReportService {
       }
     }
     throw new XmlException("No clinical document found in Envelope");
+  }
+
+  public Bundle getEncounterReport(Reference encounterRef) {
+    return storageService.getEncounterReport(encounterRef);
   }
 }

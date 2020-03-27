@@ -1,12 +1,15 @@
 <!DOCTYPE HTML>
 <html xmlns:th="https://www.thymeleaf.org">
 <head>
-    <title>Encounter created</title>
+    <title>Encounter Report</title>
 </head>
 <body>
-    <h1>Encounter created</h1>
+    <h1>Encounter Report</h1>
+    (<a th:href="@{/view(encounterId=${result.encounterId})}">permalink</a>)
     <!-- <p th:text="${inputForm.reportXml}"></p> -->
-    <p th:text="${inputForm.errorMessage}"></p>
-    <p th:text="${inputForm.encounterId}"></p>
+    <p th:text="${result.errorMessage}"></p>
+    <p th:text="${result.encounterId}"></p>
+    <pre><code class="prettyprint" th:text="${result.bundleXml}"></code></pre>
+    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
 </body>
 </html>

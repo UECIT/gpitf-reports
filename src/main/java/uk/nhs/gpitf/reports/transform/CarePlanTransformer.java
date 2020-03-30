@@ -1,31 +1,32 @@
 package uk.nhs.gpitf.reports.transform;
 
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.hl7.fhir.dstu3.model.CarePlan;
 import org.hl7.fhir.dstu3.model.CarePlan.CarePlanIntent;
 import org.hl7.fhir.dstu3.model.CarePlan.CarePlanStatus;
+import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Narrative;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.nhspathways.webservices.pathways.pathwayscase.PathwaysCaseDocument.PathwaysCase.PathwayDetails.PathwayTriageDetails.PathwayTriage.TriageLineDetails.TriageLine;
 import org.springframework.stereotype.Component;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Section;
+import uk.nhs.gpitf.reports.service.QuestionnaireResponseService;
 import uk.nhs.gpitf.reports.util.NodeUtil;
 
 @Component
 @RequiredArgsConstructor
 public class CarePlanTransformer {
 
-  @Value
-  public static class CarePlanInput {
-    POCDMT000002UK01Section carePlanSection;
-    Reference encounter;
-    Reference patient;
-  }
+  private final QuestionnaireResponseService questionnaireResponseService;
 
-  public CarePlan transformCarePlan(CarePlanInput input) {
+  public CarePlan transformCarePlan(
+      POCDMT000002UK01Section carePlanSection,
+      Encounter encounter,
+      List<TriageLine> triageLines) {
 
     CarePlan carePlan = new CarePlan();
-    POCDMT000002UK01Section carePlanSection = input.getCarePlanSection();
 
     carePlan.setTitle(NodeUtil.getNodeValueString(carePlanSection.getTitle()));
 
@@ -39,11 +40,17 @@ public class CarePlanTransformer {
     carePlan.setDescription(carePlanTextContent);
     carePlan.setStatus(CarePlanStatus.COMPLETED);
     carePlan.setIntent(CarePlanIntent.PLAN);
-    carePlan.setContext(input.getEncounter());
-    carePlan.setSubject(input.getPatient());
+    carePlan.setContext(new Reference(encounter));
+    carePlan.setSubject(encounter.getSubject());
+
 //    carePlan.addAuthor(); //TODO: No mapping exists.
 //    carePlan.addAddresses(); //TODO: No mapping exists.
-//    carePlan.addSupportingInfo(); //TODO: No mapping exists.
+//    carePlan.addSupportingInfo(); //TODO: NCTH-608 - Create Observation
+
+    triageLines.stream()
+        .map(line -> questionnaireResponseService.createQuestionnaireResponse(line, encounter))
+        .flatMap(Optional::stream)
+        .forEach(carePlan::addSupportingInfo);
 
     return carePlan;
   }

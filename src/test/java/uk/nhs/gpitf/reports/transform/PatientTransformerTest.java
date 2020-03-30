@@ -78,7 +78,7 @@ public class PatientTransformerTest {
 
     assertThat(patient.getIdentifier(), contains(
         both(hasProperty("value", equalTo("testIdentifier")))
-        .and(hasProperty("assigner", isDisplayReference("testAuthority")))));
+        .and(hasProperty("assigner", isReferenceWithDisplay("testAuthority")))));
   }
 
   @Test

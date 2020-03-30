@@ -56,7 +56,7 @@ public class EncounterReportService {
 
     Reference referralRequest = referralRequestService
         .createReferralRequest(inputBundle, encounter, transformerDevice);
-    carePlanService.createCarePlans(inputBundle, encounterRef, encounter.getSubject());
+    carePlanService.createCarePlans(inputBundle, encounter);
     consentService.createConsent(inputBundle, encounter);
     appointmentService.createAppointment(inputBundle, referralRequest, encounter.getSubject());
 

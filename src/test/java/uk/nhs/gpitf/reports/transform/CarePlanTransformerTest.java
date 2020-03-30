@@ -29,12 +29,13 @@ public class CarePlanTransformerTest {
   @Test
   public void shouldTransformCarePlan() {
     Reference encounterRef = new Reference("Encounter/123");
+    Reference patientRef = new Reference("Patient/321");
     carePlanSection.addNewTitle()
         .set(XmlString.Factory.newValue("Some advice"));
     carePlanSection.addNewText()
         .addNewContent()
         .set(XmlString.Factory.newValue("Stay indoors"));
-    CarePlanInput input = new CarePlanInput(carePlanSection, encounterRef);
+    CarePlanInput input = new CarePlanInput(carePlanSection, encounterRef, patientRef);
 
     CarePlan carePlan = carePlanTransformer.transformCarePlan(input);
 
@@ -43,6 +44,7 @@ public class CarePlanTransformerTest {
     assertThat(carePlan.getTitle(), is("Some advice"));
     assertThat(carePlan.getDescription(), is("Stay indoors"));
     assertThat(carePlan.getContext(), is(encounterRef));
+    assertThat(carePlan.getSubject(), is(patientRef));
 
     String textContent = Iterables.getOnlyElement(carePlan.getText()
         .getDiv()

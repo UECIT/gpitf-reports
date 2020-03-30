@@ -19,6 +19,7 @@ public class CarePlanTransformer {
   public static class CarePlanInput {
     POCDMT000002UK01Section carePlanSection;
     Reference encounter;
+    Reference patient;
   }
 
   public CarePlan transformCarePlan(CarePlanInput input) {
@@ -39,7 +40,7 @@ public class CarePlanTransformer {
     carePlan.setStatus(CarePlanStatus.COMPLETED);
     carePlan.setIntent(CarePlanIntent.PLAN);
     carePlan.setContext(input.getEncounter());
-//    carePlan.setSubject(encounterReportSession.getPatient()); TODO-NCTH-574
+    carePlan.setSubject(input.getPatient());
 //    carePlan.addAuthor(); //TODO: No mapping exists.
 //    carePlan.addAddresses(); //TODO: No mapping exists.
 //    carePlan.addSupportingInfo(); //TODO: No mapping exists.

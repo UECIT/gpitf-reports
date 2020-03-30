@@ -76,7 +76,7 @@ public class ReferralRequestTransformer {
     }
 
     // TODO description SHOULD be populated by the CDSS - pathways
-    // TODO supportingInfo MUST be populated with a ProcedureRequest inc. secondary concerns - pathways
+    // TODO supportingInfo MUST be populated with a ProcedureRequest inc. secondary concerns if any - pathways
     // TODO note MAY be populated with additional notes - pathways
     // TODO relevantHistory SHOULD be populated (Provenance) - not currently used in EMS
 

@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
+import org.hl7.fhir.dstu3.model.Appointment;
 import org.hl7.fhir.dstu3.model.CarePlan;
 import org.hl7.fhir.dstu3.model.Consent;
 import org.hl7.fhir.dstu3.model.Encounter;
@@ -76,9 +77,10 @@ public class ReportControllerTest {
     verify(storageService).create(any(Practitioner.class));
     verify(storageService).create(any(EpisodeOfCare.class));
     verify(storageService, times(4)).create(any(Organization.class));
-    verify(storageService, times(2)).create(any(Location.class));
+    verify(storageService, times(3)).create(any(Location.class));
     verify(storageService).create(any(CarePlan.class));
     verify(storageService).create(any(Consent.class));
+    verify(storageService).create(any(Appointment.class));
   }
 
   private void testTransform(URL resource) throws Exception {

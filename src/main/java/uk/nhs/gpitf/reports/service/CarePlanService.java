@@ -29,7 +29,7 @@ public class CarePlanService {
 
   private final CarePlanTransformer carePlanTransformer;
 
-  public List<Reference> createCarePlans(InputBundle inputBundle, Reference encounterRef) {
+  public List<Reference> createCarePlans(InputBundle inputBundle, Reference encounterRef, Reference patientRef) {
 
     POCDMT000002UK01StructuredBody structuredBody =
         StructuredBodyUtil.getStructuredBody(inputBundle.getClinicalDocument());
@@ -38,7 +38,7 @@ public class CarePlanService {
         .map(POCDMT000002UK01Component3::getSection)
         .map(this::findCarePlanSections)
         .flatMap(List::stream)
-        .map(section -> new CarePlanInput(section, encounterRef))
+        .map(section -> new CarePlanInput(section, encounterRef, patientRef))
         .map(carePlanTransformer::transformCarePlan)
         .map(storageService::create)
         .collect(Collectors.toUnmodifiableList());

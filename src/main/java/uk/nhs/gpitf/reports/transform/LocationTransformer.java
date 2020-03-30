@@ -10,7 +10,9 @@ import uk.nhs.connect.iucds.cda.ucr.CE;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01HealthCareFacility;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01IntendedRecipient;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Location;
+import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ParticipantRole;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Place;
+import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01PlayingEntity;
 import uk.nhs.gpitf.reports.constants.FHIRSystems;
 import uk.nhs.gpitf.reports.util.IdUtil;
 import uk.nhs.gpitf.reports.util.NodeUtil;
@@ -53,6 +55,22 @@ public class LocationTransformer {
     if (intendedRecipient.sizeOfAddrArray() > 0) {
       location.setAddress(addressTransformer.transform(intendedRecipient.getAddrArray(0)));
     }
+    return location;
+  }
+
+  public Location transformParticipantRole(POCDMT000002UK01ParticipantRole participantRole) {
+
+    Location location = new Location();
+    if (participantRole.sizeOfAddrArray() > 0) {
+      location.setAddress(addressTransformer.transform(participantRole.getAddrArray(0)));
+    }
+
+    if (participantRole.isSetPlayingEntity()) {
+      POCDMT000002UK01PlayingEntity playingEntity = participantRole.getPlayingEntity();
+      location.setName(NodeUtil.getNodeValueString(playingEntity.getNameArray(0)));
+      location.setDescription(NodeUtil.getNodeValueString(playingEntity.getDesc()));
+    }
+
     return location;
   }
 

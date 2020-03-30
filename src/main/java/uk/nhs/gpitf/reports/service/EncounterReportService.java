@@ -32,6 +32,7 @@ public class EncounterReportService {
   private final CarePlanService carePlanService;
   private final ConsentService consentService;
   private final DeviceService deviceService;
+  private final AppointmentService appointmentService;
 
   private final FhirStorageService storageService;
 
@@ -53,9 +54,11 @@ public class EncounterReportService {
     Encounter encounter = encounterTransformer.transform(inputBundle);
     Reference encounterRef = storageService.create(encounter);
 
-    referralRequestService.createReferralRequest(inputBundle, encounter, transformerDevice);
-    carePlanService.createCarePlans(inputBundle, encounterRef);
+    Reference referralRequest = referralRequestService
+        .createReferralRequest(inputBundle, encounter, transformerDevice);
+    carePlanService.createCarePlans(inputBundle, encounterRef, encounter.getSubject());
     consentService.createConsent(inputBundle, encounter);
+    appointmentService.createAppointment(inputBundle, referralRequest, encounter.getSubject());
 
     return encounterRef;
   }

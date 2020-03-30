@@ -7,6 +7,7 @@ import org.hl7.fhir.dstu3.model.Reference;
 import org.springframework.stereotype.Service;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01IntendedRecipient;
+import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ParticipantRole;
 import uk.nhs.gpitf.reports.transform.LocationTransformer;
 
 @Service
@@ -30,6 +31,11 @@ public class LocationService {
   public Optional<Reference> createFromIntendedRecipient(
       POCDMT000002UK01IntendedRecipient intendedRecipient) {
     Location location = locationTransformer.transformIntendedRecipientLocation(intendedRecipient);
+    return location.isEmpty() ? Optional.empty() : Optional.of(create(location));
+  }
+
+  public Optional<Reference> createFromParticipant(POCDMT000002UK01ParticipantRole participantRole) {
+    Location location = locationTransformer.transformParticipantRole(participantRole);
     return location.isEmpty() ? Optional.empty() : Optional.of(create(location));
   }
 

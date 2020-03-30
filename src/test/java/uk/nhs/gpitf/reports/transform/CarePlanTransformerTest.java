@@ -1,10 +1,10 @@
 package uk.nhs.gpitf.reports.transform;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.same;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.Mockito.verify;
-import static uk.nhs.gpitf.reports.Matchers.*;
+import static uk.nhs.gpitf.reports.Matchers.isReferenceWithDisplay;
 
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.nhspathways.webservices.pathways.pathwayscase.PathwaysCaseDocument.PathwaysCase.PathwayDetails.PathwayTriageDetails.PathwayTriage.TriageLineDetails.TriageLine;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Section;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.service.QuestionnaireResponseService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -49,11 +50,14 @@ public class CarePlanTransformerTest {
         .addNewContent()
         .set(XmlString.Factory.newValue("Stay indoors"));
 
+    InputBundle inputBundle = new InputBundle();
+
     var triageLines = new ArrayList<TriageLine>(2);
     triageLines.add(TriageLine.Factory.newInstance());
     triageLines.add(TriageLine.Factory.newInstance());
 
-    var carePlan = carePlanTransformer.transformCarePlan(carePlanSection, encounter, triageLines);
+    var carePlan =
+        carePlanTransformer.transformCarePlan(carePlanSection, encounter, triageLines, inputBundle);
 
     assertThat(carePlan.getStatus(), is(CarePlanStatus.COMPLETED));
     assertThat(carePlan.getIntent(), is(CarePlanIntent.PLAN));
@@ -69,9 +73,9 @@ public class CarePlanTransformerTest {
     assertThat(textContent, is("Stay indoors"));
 
     verify(questionnaireResponseService)
-        .createQuestionnaireResponse(same(triageLines.get(0)), same(encounter));
+        .createQuestionnaireResponse(triageLines.get(0), encounter, inputBundle);
     verify(questionnaireResponseService)
-        .createQuestionnaireResponse(same(triageLines.get(1)), same(encounter));
+        .createQuestionnaireResponse(triageLines.get(1), encounter, inputBundle);
   }
 
 }

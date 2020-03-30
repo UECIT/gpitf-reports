@@ -16,7 +16,6 @@ import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Entry;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ObservationMedia;
 import uk.nhs.gpitf.reports.constants.IUCDSTemplates;
 import uk.nhs.gpitf.reports.model.InputBundle;
-import uk.nhs.gpitf.reports.transform.EncounterTransformer;
 import uk.nhs.gpitf.reports.util.NodeUtil;
 import uk.nhs.gpitf.reports.util.StructuredBodyUtil;
 import uk.nhs.itk.envelope.DistributionEnvelopeDocument;
@@ -27,12 +26,13 @@ public class EncounterReportService {
 
   private static final String CLINICAL_DOCUMENT_NODE_NAME = "ClinicalDocument";
 
-  private final EncounterTransformer encounterTransformer;
+  private final EncounterService encounterService;
   private final ReferralRequestService referralRequestService;
   private final CarePlanService carePlanService;
   private final ConsentService consentService;
   private final DeviceService deviceService;
   private final AppointmentService appointmentService;
+  private final ListService listService;
 
   private final FhirStorageService storageService;
 
@@ -51,8 +51,7 @@ public class EncounterReportService {
 
     Reference transformerDevice = deviceService.createTransformerDevice();
 
-    Encounter encounter = encounterTransformer.transform(inputBundle);
-    Reference encounterRef = storageService.create(encounter);
+    Encounter encounter = encounterService.createEncounter(inputBundle);
 
     Reference referralRequest = referralRequestService
         .createReferralRequest(inputBundle, encounter, transformerDevice);
@@ -60,7 +59,9 @@ public class EncounterReportService {
     consentService.createConsent(inputBundle, encounter);
     appointmentService.createAppointment(inputBundle, referralRequest, encounter.getSubject());
 
-    return encounterRef;
+    listService.createList(inputBundle, transformerDevice, encounter);
+
+    return new Reference(encounter.getIdElement());
   }
 
   private String findPathwaysCase(POCDMT000002UK01ClinicalDocument1 document) {

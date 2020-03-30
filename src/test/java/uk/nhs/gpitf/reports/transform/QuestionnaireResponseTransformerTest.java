@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.nhspathways.webservices.pathways.pathwayscase.PathwaysCaseDocument.PathwaysCase.PathwayDetails.PathwayTriageDetails.PathwayTriage.TriageLineDetails.TriageLine;
 import org.nhspathways.webservices.pathways.pathwayscase.PathwaysCaseDocument.PathwaysCase.PathwayDetails.PathwayTriageDetails.PathwayTriage.TriageLineDetails.TriageLine.Question;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.service.QuestionnaireService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -29,12 +30,12 @@ public class QuestionnaireResponseTransformerTest {
   @InjectMocks
   private QuestionnaireResponseTransformer responseTransformer;
 
-  private static final String QUESTIONNAIRE_REFERENCE = "QuestionaireReference";
+  private static final String QUESTIONNAIRE_REFERENCE = "QuestionnaireReference";
 
   @Before
   public void setup() {
     var questionnaireRef = new Reference().setDisplay(QUESTIONNAIRE_REFERENCE);
-    when(questionnaireService.createQuestionnaire(any(Question.class)))
+    when(questionnaireService.createQuestionnaire(any(Question.class), any(InputBundle.class)))
         .thenReturn(questionnaireRef);
   }
 
@@ -62,7 +63,7 @@ public class QuestionnaireResponseTransformerTest {
     final var SUBJECT_REFERENCE = "SubjectReference";
     encounter.setSubject(new Reference().setDisplay(SUBJECT_REFERENCE));
 
-    var response = responseTransformer.transform(triageLine, encounter);
+    var response = responseTransformer.transform(triageLine, encounter, new InputBundle());
 
     assertThat(response.getStatus(), is(QuestionnaireResponseStatus.COMPLETED));
     assertThat(response.getQuestionnaire(), isReferenceWithDisplay(QUESTIONNAIRE_REFERENCE));

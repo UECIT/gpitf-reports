@@ -1,8 +1,14 @@
 package uk.nhs.gpitf.reports.transform;
 
+import static org.hamcrest.CoreMatchers.both;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static uk.nhs.gpitf.reports.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.is;
+import static uk.nhs.gpitf.reports.Matchers.isConcept;
+import static uk.nhs.gpitf.reports.Matchers.isNhsNumber;
+import static uk.nhs.gpitf.reports.Matchers.isReferenceWithDisplay;
 
 import org.junit.Before;
 import org.junit.Test;

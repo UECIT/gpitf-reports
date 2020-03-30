@@ -10,10 +10,9 @@ import uk.nhs.gpitf.reports.transform.ReferralRequestTransformer;
 
 @Service
 @RequiredArgsConstructor
-public class ReferralRequestService {
+public class ReferralRequestService extends TrackingResourceCreationsService {
 
   private final ReferralRequestTransformer referralRequestTransformer;
-  private final FhirStorageService storageService;
 
   public Reference createReferralRequest(
       InputBundle inputBundle,
@@ -21,6 +20,6 @@ public class ReferralRequestService {
       Reference transformerDevice) {
     ReferralRequest referralRequest = referralRequestTransformer.transform(
         inputBundle, encounter, transformerDevice);
-    return storageService.create(referralRequest);
+    return create(referralRequest, inputBundle);
   }
 }

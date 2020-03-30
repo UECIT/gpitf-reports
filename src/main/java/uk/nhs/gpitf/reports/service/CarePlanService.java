@@ -23,9 +23,7 @@ import uk.nhs.gpitf.reports.util.StructuredBodyUtil;
 
 @Service
 @RequiredArgsConstructor
-public class CarePlanService {
-
-  private final FhirStorageService storageService;
+public class CarePlanService extends TrackingResourceCreationsService {
 
   private final CarePlanTransformer carePlanTransformer;
 
@@ -40,8 +38,9 @@ public class CarePlanService {
         .map(POCDMT000002UK01Component3::getSection)
         .map(this::findCarePlanSections)
         .flatMap(List::stream)
-        .map(section -> carePlanTransformer.transformCarePlan(section, encounter, triageLines))
-        .map(storageService::create)
+        .map(section ->
+            carePlanTransformer.transformCarePlan(section, encounter, triageLines, inputBundle))
+        .map(cp -> create(cp, inputBundle))
         .collect(Collectors.toUnmodifiableList());
   }
 

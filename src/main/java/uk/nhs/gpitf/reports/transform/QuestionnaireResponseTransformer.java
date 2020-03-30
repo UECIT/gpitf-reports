@@ -11,6 +11,7 @@ import org.hl7.fhir.dstu3.model.StringType;
 import org.nhspathways.webservices.pathways.pathwayscase.PathwaysCaseDocument.PathwaysCase.PathwayDetails.PathwayTriageDetails.PathwayTriage.TriageLineDetails.TriageLine;
 import org.nhspathways.webservices.pathways.pathwayscase.PathwaysCaseDocument.PathwaysCase.PathwayDetails.PathwayTriageDetails.PathwayTriage.TriageLineDetails.TriageLine.Question.Answers.Answer;
 import org.springframework.stereotype.Component;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.service.QuestionnaireService;
 
 @Component
@@ -19,12 +20,12 @@ public class QuestionnaireResponseTransformer {
 
   private final QuestionnaireService questionnaireService;
 
-  public QuestionnaireResponse transform(TriageLine triageLine, Encounter encounter) {
+  public QuestionnaireResponse transform(TriageLine triageLine, Encounter encounter, InputBundle inputBundle) {
     var question = triageLine.getQuestion();
 
     var response = new QuestionnaireResponse();
     response.setStatus(QuestionnaireResponseStatus.COMPLETED);
-    response.setQuestionnaire(questionnaireService.createQuestionnaire(question));
+    response.setQuestionnaire(questionnaireService.createQuestionnaire(question, inputBundle));
     response.setContext(new Reference(encounter));
     response.setSubject(encounter.getSubject());
     response.setSource(encounter.getSubject());

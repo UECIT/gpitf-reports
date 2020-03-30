@@ -28,25 +28,6 @@ public class FhirStorageService {
   @Value("${fhir.server.auth.token}")
   private String fhirServerAuthToken;
 
-  /**
-   * Updates a record with an existing ID, or {@link #create(Resource)} a new record if the ID is
-   * missing
-   *
-   * @param resource the resource to update on the remote server
-   * @return a reference to the stored resource
-   */
-  public Reference upsert(Resource resource) {
-    if (resource.hasId()) {
-      client()
-          .update()
-          .resource(resource)
-          .execute();
-      return new Reference(resource.getId());
-    } else {
-      return create(resource);
-    }
-  }
-
   public Reference create(Resource resource) {
     var id = client()
         .create()

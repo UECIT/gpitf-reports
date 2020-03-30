@@ -12,6 +12,7 @@ import org.hl7.fhir.dstu3.model.Reference;
 import org.nhspathways.webservices.pathways.pathwayscase.PathwaysCaseDocument.PathwaysCase.PathwayDetails.PathwayTriageDetails.PathwayTriage.TriageLineDetails.TriageLine;
 import org.springframework.stereotype.Component;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Section;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.service.QuestionnaireResponseService;
 import uk.nhs.gpitf.reports.util.NodeUtil;
 
@@ -24,7 +25,8 @@ public class CarePlanTransformer {
   public CarePlan transformCarePlan(
       POCDMT000002UK01Section carePlanSection,
       Encounter encounter,
-      List<TriageLine> triageLines) {
+      List<TriageLine> triageLines,
+      InputBundle inputBundle) {
 
     CarePlan carePlan = new CarePlan();
 
@@ -48,7 +50,7 @@ public class CarePlanTransformer {
 //    carePlan.addSupportingInfo(); //TODO: NCTH-608 - Create Observation
 
     triageLines.stream()
-        .map(line -> questionnaireResponseService.createQuestionnaireResponse(line, encounter))
+        .map(line -> questionnaireResponseService.createQuestionnaireResponse(line, encounter, inputBundle))
         .flatMap(Optional::stream)
         .forEach(carePlan::addSupportingInfo);
 

@@ -34,6 +34,7 @@ public class EncounterReportService {
   private final AppointmentService appointmentService;
   private final ListService listService;
   private final CompositionService compositionService;
+  private final QuestionnaireResponseService questionnaireResponseService;
 
   private final FhirStorageService storageService;
 
@@ -53,7 +54,7 @@ public class EncounterReportService {
     Reference transformerDevice = deviceService.createTransformerDevice();
 
     Encounter encounter = encounterService.createEncounter(inputBundle);
-
+    questionnaireResponseService.createQuestionnaireResponse(encounter, inputBundle);
     Reference referralRequest = referralRequestService
         .createReferralRequest(inputBundle, encounter, transformerDevice);
     carePlanService.createCarePlans(inputBundle, encounter);

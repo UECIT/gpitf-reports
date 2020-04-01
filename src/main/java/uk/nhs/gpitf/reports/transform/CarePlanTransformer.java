@@ -1,14 +1,18 @@
 package uk.nhs.gpitf.reports.transform;
 
+import static uk.nhs.gpitf.reports.util.ReferenceUtil.ofTypes;
+
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.hl7.fhir.dstu3.model.CarePlan;
 import org.hl7.fhir.dstu3.model.CarePlan.CarePlanIntent;
 import org.hl7.fhir.dstu3.model.CarePlan.CarePlanStatus;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Narrative;
+import org.hl7.fhir.dstu3.model.Observation;
+import org.hl7.fhir.dstu3.model.QuestionnaireResponse;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.nhspathways.webservices.pathways.pathwayscase.PathwaysCaseDocument.PathwaysCase.PathwayDetails.PathwayTriageDetails.PathwayTriage.TriageLineDetails.TriageLine;
 import org.springframework.stereotype.Component;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Section;
@@ -47,11 +51,11 @@ public class CarePlanTransformer {
 
 //    carePlan.addAuthor(); //TODO: No mapping exists.
 //    carePlan.addAddresses(); //TODO: No mapping exists.
-//    carePlan.addSupportingInfo(); //TODO: NCTH-608 - Create Observation
 
-    triageLines.stream()
-        .map(line -> questionnaireResponseService.createQuestionnaireResponse(line, encounter, inputBundle))
-        .flatMap(Optional::stream)
+    inputBundle.getResourcesCreated().stream()
+        .filter(ofTypes(QuestionnaireResponse.class, Observation.class))
+        .map(Resource::getIdElement)
+        .map(Reference::new)
         .forEach(carePlan::addSupportingInfo);
 
     return carePlan;

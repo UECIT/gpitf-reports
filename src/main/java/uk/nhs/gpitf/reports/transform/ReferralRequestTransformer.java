@@ -1,23 +1,31 @@
 package uk.nhs.gpitf.reports.transform;
 
+import static uk.nhs.gpitf.reports.util.ReferenceUtil.ofTypes;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
+import org.hl7.fhir.dstu3.model.Condition.ConditionEvidenceComponent;
 import org.hl7.fhir.dstu3.model.Condition.ConditionVerificationStatus;
+import org.hl7.fhir.dstu3.model.DomainResource;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Narrative;
+import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Period;
+import org.hl7.fhir.dstu3.model.QuestionnaireResponse;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralCategory;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralPriority;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralRequestRequesterComponent;
 import org.hl7.fhir.dstu3.model.ReferralRequest.ReferralRequestStatus;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.springframework.stereotype.Component;
 import uk.nhs.connect.iucds.cda.ucr.CV;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
@@ -71,7 +79,7 @@ public class ReferralRequestTransformer {
             .setOnBehalfOf(encounter.getServiceProvider()));
 
     for (CodeableConcept code : getClinicalDiscriminatorCodes(inputBundle.getClinicalDocument())) {
-      referralRequest.addReasonReference(createReasonCondition(encounter, code));
+      referralRequest.addReasonReference(createReasonCondition(encounter, code, inputBundle));
     }
 
     for (POCDMT000002UK01InformationRecipient recipient :
@@ -94,7 +102,7 @@ public class ReferralRequestTransformer {
     return referralRequest;
   }
 
-  private Reference createReasonCondition(Encounter encounter, CodeableConcept reason) {
+  private Reference createReasonCondition(Encounter encounter, CodeableConcept reason, InputBundle inputBundle) {
     // severity SHOULD be populated where available - no mapping
     // bodySite SHOULD be populated where available - no mapping
     // onset SHOULD be populated where available - no mapping
@@ -103,7 +111,6 @@ public class ReferralRequestTransformer {
     // asserter MUST NOT
     // stage - no mapping
     // evidence.code MUST NOT
-    // TODO evidence.detail MUST -> Observations, QRs - pathways
     // note MUST NOT
 
     Condition condition = new Condition()
@@ -112,7 +119,24 @@ public class ReferralRequestTransformer {
         .setCode(reason)
         .setSubject(encounter.getSubject())
         .setContext(new Reference(encounter));
+
+    evidenceOf(QuestionnaireResponse.class, inputBundle)
+        .ifPresent(condition::addEvidence);
+    evidenceOf(Observation.class, inputBundle)
+        .ifPresent(condition::addEvidence);
+
     return conditionService.create(condition);
+  }
+
+  private Optional<ConditionEvidenceComponent> evidenceOf(Class<? extends DomainResource> clazz, InputBundle inputBundle) {
+    ConditionEvidenceComponent evidenceComponent = new ConditionEvidenceComponent();
+    inputBundle.getResourcesCreated().stream()
+        .filter(ofTypes(clazz))
+        .map(Resource::getIdElement)
+        .map(Reference::new)
+        .forEach(evidenceComponent::addDetail);
+
+    return evidenceComponent.hasDetail() ? Optional.of(evidenceComponent) : Optional.empty();
   }
 
   private List<CodeableConcept> getClinicalDiscriminatorCodes(

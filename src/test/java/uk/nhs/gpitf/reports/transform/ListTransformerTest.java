@@ -12,11 +12,17 @@ import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.hl7.fhir.dstu3.model.CarePlan;
+import org.hl7.fhir.dstu3.model.DomainResource;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.ListResource;
 import org.hl7.fhir.dstu3.model.ListResource.ListEntryComponent;
 import org.hl7.fhir.dstu3.model.ListResource.ListStatus;
+import org.hl7.fhir.dstu3.model.Observation;
+import org.hl7.fhir.dstu3.model.Questionnaire;
+import org.hl7.fhir.dstu3.model.QuestionnaireResponse;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.ReferralRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.nhspathways.webservices.pathways.pathwayscase.PathwaysCaseDocument.PathwaysCase;
@@ -39,15 +45,15 @@ public class ListTransformerTest {
   @Test
   public void createList() {
     InputBundle inputBundle = new InputBundle();
-    List<Reference> references = Arrays.asList(
-        new Reference("CarePlan/123"),
-        new Reference("ReferralRequest/421"),
-        new Reference("Questionnaire/33"),
-        new Reference("QuestionnaireResponse/4444"),
-        new Reference("Observation/33322")
+    List<DomainResource> resources = Arrays.asList(
+        (DomainResource)new CarePlan().setId("CarePlan/123"),
+        (DomainResource)new ReferralRequest().setId("ReferralRequest/421"),
+        (DomainResource)new Questionnaire().setId("Questionnaire/33"),
+        (DomainResource)new QuestionnaireResponse().setId("QuestionnaireResponse/4444"),
+        (DomainResource)new Observation().setId("Observation/33322")
     );
 
-    inputBundle.setResourcesCreated(references);
+    inputBundle.setResourcesCreated(resources);
 
     TriageLine triageLine = TriageLine.Factory.newInstance();
     GregorianCalendar calendar = GregorianCalendar
@@ -76,11 +82,13 @@ public class ListTransformerTest {
     assertThat(list.getStatus(), is(ListStatus.CURRENT));
     assertThat(list.getDate(), sameInstant(calendar.toInstant()));
 
-    List<Reference> entryRefs = list.getEntry().stream()
+    List<String> entryRefs = list.getEntry().stream()
         .map(ListEntryComponent::getItem)
+        .map(Reference::getReference)
         .collect(Collectors.toUnmodifiableList());
 
-    assertThat(entryRefs, contains(references.toArray()));
+    assertThat(entryRefs,
+        contains("CarePlan/123", "ReferralRequest/421", "Questionnaire/33", "QuestionnaireResponse/4444", "Observation/33322"));
   }
 
 }

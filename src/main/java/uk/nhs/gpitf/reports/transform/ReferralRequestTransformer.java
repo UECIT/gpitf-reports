@@ -10,6 +10,7 @@ import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Condition.ConditionClinicalStatus;
 import org.hl7.fhir.dstu3.model.Condition.ConditionVerificationStatus;
 import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.Narrative;
 import org.hl7.fhir.dstu3.model.Period;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
@@ -27,7 +28,9 @@ import uk.nhs.gpitf.reports.constants.IUCDSTemplates;
 import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.service.ConditionService;
 import uk.nhs.gpitf.reports.service.HealthcareServiceService;
+import uk.nhs.gpitf.reports.service.NarrativeService;
 import uk.nhs.gpitf.reports.util.CodeUtil;
+import uk.nhs.gpitf.reports.util.PathwaysUtils;
 import uk.nhs.gpitf.reports.util.StructuredBodyUtil;
 
 @Component
@@ -36,6 +39,7 @@ public class ReferralRequestTransformer {
 
   private final ConditionService conditionService;
   private final HealthcareServiceService healthcareServiceService;
+  private final NarrativeService narrativeService;
 
   public ReferralRequest transform(InputBundle inputBundle,
       Encounter encounter, Reference transformerDevice) {
@@ -75,7 +79,14 @@ public class ReferralRequestTransformer {
       referralRequest.addRecipient(healthcareServiceService.createHealthcareService(recipient));
     }
 
-    // TODO description SHOULD be populated by the CDSS - pathways
+    PathwaysUtils.getOutcome(inputBundle.getPathwaysCase())
+        .ifPresent(outcome -> {
+          referralRequest.setDescription(outcome.getTitle());
+          Narrative narrative = narrativeService
+              .buildNarrative(outcome.getCode() + " - " + outcome.getTitle());
+          referralRequest.setText(narrative);
+        });
+
     // TODO supportingInfo MUST be populated with a ProcedureRequest inc. secondary concerns if any - pathways
     // TODO note MAY be populated with additional notes - pathways
     // TODO relevantHistory SHOULD be populated (Provenance) - not currently used in EMS

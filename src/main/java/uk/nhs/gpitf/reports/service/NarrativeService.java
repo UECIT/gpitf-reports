@@ -26,6 +26,7 @@ public class NarrativeService {
 
   public Narrative buildCombinedNarrative(List<Narrative> narratives) {
     return buildNarrative(narratives.stream()
+        .filter(Narrative::hasDiv)
         .map(Narrative::getDiv)
         .map(XhtmlNode::toString)
         .collect(Collectors.joining("", DIV_START, DIV_END)));

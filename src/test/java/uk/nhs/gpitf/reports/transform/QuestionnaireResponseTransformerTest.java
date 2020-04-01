@@ -1,15 +1,22 @@
 package uk.nhs.gpitf.reports.transform;
 
-import static org.hamcrest.Matchers.*;
-import static uk.nhs.gpitf.reports.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
+import static uk.nhs.gpitf.reports.Matchers.isReferenceWithDisplay;
+import static uk.nhs.gpitf.reports.Matchers.isStringType;
 
 import java.util.Calendar;
 import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.Narrative;
 import org.hl7.fhir.dstu3.model.QuestionnaireResponse.QuestionnaireResponseStatus;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.utilities.xhtml.XhtmlNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +26,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.nhspathways.webservices.pathways.pathwayscase.PathwaysCaseDocument.PathwaysCase.PathwayDetails.PathwayTriageDetails.PathwayTriage.TriageLineDetails.TriageLine;
 import org.nhspathways.webservices.pathways.pathwayscase.PathwaysCaseDocument.PathwaysCase.PathwayDetails.PathwayTriageDetails.PathwayTriage.TriageLineDetails.TriageLine.Question;
 import uk.nhs.gpitf.reports.model.InputBundle;
+import uk.nhs.gpitf.reports.service.NarrativeService;
 import uk.nhs.gpitf.reports.service.QuestionnaireService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -26,6 +34,9 @@ public class QuestionnaireResponseTransformerTest {
 
   @Mock
   private QuestionnaireService questionnaireService;
+
+  @Mock
+  private NarrativeService narrativeService;
 
   @InjectMocks
   private QuestionnaireResponseTransformer responseTransformer;
@@ -63,6 +74,12 @@ public class QuestionnaireResponseTransformerTest {
     final var SUBJECT_REFERENCE = "SubjectReference";
     encounter.setSubject(new Reference().setDisplay(SUBJECT_REFERENCE));
 
+    var narrative = new Narrative()
+        .setDiv(new XhtmlNode().setValue("Question - Are you a [test] runner?"));
+    when(narrativeService.buildNarrative(argThat(containsString("Are you a [test] runner?"))))
+        .thenReturn(narrative);
+
+
     var response = responseTransformer.transform(triageLine, encounter, new InputBundle());
 
     assertThat(response.getStatus(), is(QuestionnaireResponseStatus.COMPLETED));
@@ -72,6 +89,7 @@ public class QuestionnaireResponseTransformerTest {
     assertThat(response.getSource(), isReferenceWithDisplay(SUBJECT_REFERENCE));
     assertThat(response.getAuthored(), is(date.getTime()));
     assertThat(response.getItem(), hasSize(1));
+    assertThat(response.getText(), is(narrative));
 
     var item = response.getItemFirstRep();
     assertThat(item.getLinkId(), is("q"));

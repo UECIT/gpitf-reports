@@ -1,5 +1,6 @@
 package uk.nhs.gpitf.reports.util;
 
+import java.util.Arrays;
 import java.util.function.Predicate;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,15 @@ public class ReferenceUtil {
 
       return false;
     };
+  }
+
+  @SafeVarargs
+  public static Predicate<DomainResource> ofTypes(Class<? extends DomainResource>... types) {
+    return Arrays.stream(types)
+        .map(type -> (Predicate<DomainResource>) type::isInstance)
+        .reduce(Predicate::or)
+        .orElse(x -> false);
+
   }
 
 }

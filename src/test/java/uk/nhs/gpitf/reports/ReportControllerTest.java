@@ -15,9 +15,11 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.hl7.fhir.dstu3.model.Appointment;
 import org.hl7.fhir.dstu3.model.CarePlan;
+import org.hl7.fhir.dstu3.model.Composition;
 import org.hl7.fhir.dstu3.model.Consent;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.EpisodeOfCare;
+import org.hl7.fhir.dstu3.model.ListResource;
 import org.hl7.fhir.dstu3.model.Location;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Practitioner;
@@ -71,6 +73,8 @@ public class ReportControllerTest {
     verify(storageService).create(any(Location.class));
     verify(storageService, never())
         .create(any(CarePlan.class));
+    verify(storageService).create(any(ListResource.class));
+    verify(storageService).create(any(Composition.class));
   }
 
   @Test
@@ -85,6 +89,8 @@ public class ReportControllerTest {
     verify(storageService).create(any(CarePlan.class));
     verify(storageService).create(any(Consent.class));
     verify(storageService).create(any(Appointment.class));
+    verify(storageService).create(any(ListResource.class));
+    verify(storageService).create(any(Composition.class));
   }
 
   private void testTransform(URL resource) throws Exception {

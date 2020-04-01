@@ -33,6 +33,7 @@ public class EncounterReportService {
   private final DeviceService deviceService;
   private final AppointmentService appointmentService;
   private final ListService listService;
+  private final CompositionService compositionService;
 
   private final FhirStorageService storageService;
 
@@ -60,6 +61,7 @@ public class EncounterReportService {
     appointmentService.createAppointment(inputBundle, referralRequest, encounter.getSubject());
 
     listService.createList(inputBundle, transformerDevice, encounter);
+    compositionService.createList(inputBundle, transformerDevice, encounter);
 
     return new Reference(encounter.getIdElement());
   }

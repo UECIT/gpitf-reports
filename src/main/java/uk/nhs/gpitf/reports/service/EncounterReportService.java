@@ -35,6 +35,7 @@ public class EncounterReportService {
   private final ListService listService;
   private final CompositionService compositionService;
   private final QuestionnaireResponseService questionnaireResponseService;
+  private final FhirMessageService fhirMessageService;
 
   private final FhirStorageService storageService;
 
@@ -102,6 +103,7 @@ public class EncounterReportService {
   }
 
   public Bundle getEncounterReport(Reference encounterRef) {
-    return storageService.getEncounterReport(encounterRef);
+    Bundle encounterReport = storageService.getEncounterReport(encounterRef);
+    return fhirMessageService.createMessage(encounterReport);
   }
 }

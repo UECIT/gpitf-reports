@@ -28,7 +28,7 @@ public class FhirMessageService {
   public Bundle createMessage(Bundle bundle) {
 
     MessageHeader messageHeader = new MessageHeader()
-        .setEvent(MessageEvent.COMMUNICATION_REQUEST.toCoding()) //TODO: Find a code?
+        .setEvent(MessageEvent.ITK_GP_CONNECT_SEND.toCoding())
         .addDestination(new MessageDestinationComponent()
           .setName("Test Destination")
           .setEndpoint("test.endpoint"))

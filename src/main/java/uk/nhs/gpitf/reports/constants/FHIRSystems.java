@@ -21,4 +21,7 @@ public class FHIRSystems {
   public final String TREATMENT_CATEGORY_URL = "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect-TreatmentCategory-1";
 
   public final String SERVICE_DELIVERY_LOCATION_ROLE_TYPE = "http://hl7.org/fhir/ValueSet/v3-ServiceDeliveryLocationRoleType";
+
+  public final String MESSAGE_EVENT = "http://hl7.org/fhir/STU3/codesystem-message-events.html";
+  public final String ITK_MESSAGE_EVENT = "https://fhir.nhs.uk/STU3/CodeSystem/ITK-MessageEvent-2";
 }

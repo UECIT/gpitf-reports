@@ -18,6 +18,7 @@ public class ConsentService {
   public Reference createConsent(
       InputBundle inputBundle, Encounter encounter) {
     Consent consent = consentTransformer.transform(inputBundle.getClinicalDocument(), encounter);
+    inputBundle.addResource(consent);
     return create(consent);
   }
 

@@ -36,6 +36,7 @@ public class EncounterReportService {
   private final CompositionService compositionService;
   private final QuestionnaireResponseService questionnaireResponseService;
   private final FhirMessageService fhirMessageService;
+  private final ObservationService observationService;
 
   private final FhirStorageService storageService;
 
@@ -61,7 +62,8 @@ public class EncounterReportService {
     carePlanService.createCarePlans(inputBundle, encounter);
     consentService.createConsent(inputBundle, encounter);
     appointmentService.createAppointment(inputBundle, referralRequest, encounter.getSubject());
-
+    observationService.createObservation(inputBundle, transformerDevice, encounter);
+    
     listService.createList(inputBundle, transformerDevice, encounter);
     compositionService.createList(inputBundle, transformerDevice, encounter);
 

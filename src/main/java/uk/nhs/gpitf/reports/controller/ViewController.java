@@ -37,7 +37,6 @@ public class ViewController {
     try {
       Reference encounterRef = encounterReportService
           .createEncounterReport(input.getReportXml());
-
       fetchEncounterReport(encounterRef, result);
     } catch (XmlException e) {
       result.setErrorMessage(e.getMessage());

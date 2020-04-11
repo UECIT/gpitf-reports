@@ -18,11 +18,16 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1.Factory;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
 import uk.nhs.gpitf.reports.model.InputBundle;
+import uk.nhs.gpitf.reports.service.AllergyIntoleranceService;
+import uk.nhs.gpitf.reports.service.ClinicalImpressionService;
 import uk.nhs.gpitf.reports.service.EncounterParticipantService;
 import uk.nhs.gpitf.reports.service.EpisodeOfCareService;
 import uk.nhs.gpitf.reports.service.LocationService;
+import uk.nhs.gpitf.reports.service.MedicationService;
 import uk.nhs.gpitf.reports.service.OrganizationService;
 import uk.nhs.gpitf.reports.service.PatientService;
+import uk.nhs.gpitf.reports.service.RelatedPersonService;
+import uk.nhs.gpitf.reports.service.TriageReportService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EncounterTransformerTest {
@@ -44,7 +49,22 @@ public class EncounterTransformerTest {
 
   @Mock
   private PatientService patientService;
+  
+  @Mock
+  private RelatedPersonService relatedPersonService;
+  
+  @Mock
+  private MedicationService medicationService;
 
+  @Mock
+  private AllergyIntoleranceService allergyIntoleranceService;
+  
+  @Mock
+  private TriageReportService triageReportService;
+  
+  @Mock
+  private ClinicalImpressionService clinicalImpressionService;
+  
   @Test
   public void testTransform() throws Exception {
     URL resource = getClass().getResource("/example-clinical-doc.xml");
@@ -65,5 +85,8 @@ public class EncounterTransformerTest {
     verify(locationService).createFromEncompassingEncounter(clinicalDocument);
     verify(organizationService).createServiceProvider(clinicalDocument);
     verify(patientService).createPatient(clinicalDocument);
+    verify(relatedPersonService).createRelatedPerson(inputBundle, encounter);
+    verify(medicationService).createMedication(inputBundle, encounter);
+    verify(allergyIntoleranceService).createAllergyIntolerance(inputBundle, encounter);
   }
 }

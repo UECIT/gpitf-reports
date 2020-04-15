@@ -1,11 +1,21 @@
 package uk.nhs.gpitf.reports.service;
 
 import lombok.RequiredArgsConstructor;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.xmlbeans.XmlException;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.dstu3.model.Bundle.BundleLinkComponent;
+import org.hl7.fhir.dstu3.model.Composition;
+import org.hl7.fhir.dstu3.model.Consent;
 import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.ListResource;
+import org.hl7.fhir.dstu3.model.ListResource.ListEntryComponent;
+import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.nhspathways.webservices.pathways.pathwayscase.PathwaysCaseDocument;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;
@@ -106,6 +116,34 @@ public class EncounterReportService {
 
   public Bundle getEncounterReport(Reference encounterRef) {
     Bundle encounterReport = storageService.getEncounterReport(encounterRef);
-    return fhirMessageService.createMessage(encounterReport);
+    Bundle bundle = fhirMessageService.createMessage(encounterReport);
+    addObservationToBundle(bundle);
+    return bundle;
   }
+
+  private Bundle addObservationToBundle(Bundle bundle) {
+    String observationRef = null;
+    Observation observation = null;
+    String consentRef = null;
+    Consent consent = null;
+    List<BundleEntryComponent> entry = bundle.getEntry();
+    for (BundleEntryComponent bundleEntryComponent : entry) {
+      if (bundleEntryComponent.getResource().getResourceType().name().equals("List")) {
+        ListResource resource = (ListResource) bundleEntryComponent.getResource();
+        List<ListEntryComponent> ListEntry = resource.getEntry();
+        for (ListEntryComponent ListEntryComponent : ListEntry) {
+          if (ListEntryComponent.getItem().getReference().contains("Observation")) {
+            observationRef = ListEntryComponent.getItem().getReference();
+            observation = (Observation) storageService.fetchResourceFromUrl(observationRef, "Observation");
+          } else if (ListEntryComponent.getItem().getReference().contains("Consent")) {
+            consentRef = ListEntryComponent.getItem().getReference();
+            consent = (Consent) storageService.fetchResourceFromUrl(consentRef, "Consent");
+          } else {}
+      }
+    }
+  }
+  bundle.getEntry().add(new BundleEntryComponent().setFullUrl(observationRef).setResource(observation));
+  bundle.getEntry().add(new BundleEntryComponent().setFullUrl(consentRef).setResource(consent));
+  return bundle;
+}
 }

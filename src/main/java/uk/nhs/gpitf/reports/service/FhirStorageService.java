@@ -8,9 +8,12 @@ import ca.uhn.fhir.rest.client.api.IHttpResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Consent;
 import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
+import org.hl7.fhir.dstu3.model.ResourceType;
 import org.hl7.fhir.instance.model.api.IIdType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -67,5 +70,14 @@ public class FhirStorageService {
         .revInclude(Encounter.INCLUDE_ALL)
         .returnBundle(Bundle.class)
         .execute();
+  }
+  
+  public Resource fetchResourceFromUrl(String theUrl, String refType) {
+    if (refType.equals("Observation")) {
+      return client().fetchResourceFromUrl(Observation.class, theUrl);
+    } else if (refType.equals("Consent")) {
+      return client().fetchResourceFromUrl(Consent.class, theUrl);
+    }
+    return null;
   }
 }

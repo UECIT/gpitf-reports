@@ -1,23 +1,27 @@
 package uk.nhs.gpitf.reports.service;
 
+import java.io.IOException;
+import org.hl7.fhir.dstu3.model.AllergyIntolerance;
+import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.ClinicalImpression;
+import org.hl7.fhir.dstu3.model.Consent;
+import org.hl7.fhir.dstu3.model.DiagnosticReport;
+import org.hl7.fhir.dstu3.model.Encounter;
+import org.hl7.fhir.dstu3.model.MedicationStatement;
+import org.hl7.fhir.dstu3.model.Observation;
+import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.RelatedPerson;
+import org.hl7.fhir.dstu3.model.Resource;
+import org.hl7.fhir.instance.model.api.IIdType;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Service;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IClientInterceptor;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.api.IHttpRequest;
 import ca.uhn.fhir.rest.client.api.IHttpResponse;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
-import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.Consent;
-import org.hl7.fhir.dstu3.model.Encounter;
-import org.hl7.fhir.dstu3.model.Observation;
-import org.hl7.fhir.dstu3.model.Reference;
-import org.hl7.fhir.dstu3.model.Resource;
-import org.hl7.fhir.dstu3.model.ResourceType;
-import org.hl7.fhir.instance.model.api.IIdType;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -77,6 +81,16 @@ public class FhirStorageService {
       return client().fetchResourceFromUrl(Observation.class, theUrl);
     } else if (refType.equals("Consent")) {
       return client().fetchResourceFromUrl(Consent.class, theUrl);
+    } else if (refType.equals("ClinicalImpression")) {
+      return client().fetchResourceFromUrl(ClinicalImpression.class, theUrl);
+    } else if (refType.equals("AllergyIntolerance")) {
+      return client().fetchResourceFromUrl(AllergyIntolerance.class, theUrl);
+    } else if (refType.equals("DiagnosticReport")) {
+      return client().fetchResourceFromUrl(DiagnosticReport.class, theUrl);
+    } else if (refType.equals("MedicationStatement")) {
+      return client().fetchResourceFromUrl(MedicationStatement.class, theUrl);
+    } else if (refType.equals("RelatedPerson")) {
+      return client().fetchResourceFromUrl(RelatedPerson.class, theUrl);
     }
     return null;
   }

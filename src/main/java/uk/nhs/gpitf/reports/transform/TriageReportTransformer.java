@@ -3,6 +3,9 @@ package uk.nhs.gpitf.reports.transform;
 import java.util.List;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.DiagnosticReport.DiagnosticReportStatus;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +28,12 @@ public class TriageReportTransformer {
         .getSectionsOfType(structuredBody, IUCDSSystems.SNOMED, "4281000179108");
     DiagnosticReport diagnosticReport = null;
     if (triageReportSection.size() > 0) {
+      String contentArray = triageReportSection.get(0).getText().xmlText();
+      Document doc = Jsoup.parse(contentArray, "", Parser.xmlParser());
       diagnosticReport = new DiagnosticReport()
           .setSubject(encounter.getSubject())
           .setStatus(DiagnosticReportStatus.UNKNOWN)
-          .setConclusion(triageReportSection.get(0).getText().getContentArray().toString());
+          .setConclusion(doc.select("content").text());
     }
     return diagnosticReport;
   }

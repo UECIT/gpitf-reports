@@ -8,6 +8,9 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceCriticality
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceReactionComponent;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceSeverity;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance.AllergyIntoleranceVerificationStatus;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
 import org.hl7.fhir.dstu3.model.Annotation;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.springframework.stereotype.Component;
@@ -34,13 +37,15 @@ public class AllergyIntoleranceTransformer {
     allergyIntoleranceReactionComponent.setSeverity(AllergyIntoleranceSeverity.MODERATE);
     AllergyIntolerance allergyIntolerance = null;
     if (allergyIntoleranceSection.size() > 0) {
+      String contentArray = allergyIntoleranceSection.get(0).getText().xmlText();
+      Document doc = Jsoup.parse(contentArray, "", Parser.xmlParser());
       allergyIntolerance = new AllergyIntolerance()
           .setPatient(encounter.getSubject())
           .setClinicalStatus(AllergyIntoleranceClinicalStatus.ACTIVE)
           .addCategory(AllergyIntoleranceCategory.MEDICATION)
           .setVerificationStatus(AllergyIntoleranceVerificationStatus.UNCONFIRMED)
           .setCriticality(AllergyIntoleranceCriticality.UNABLETOASSESS)
-          .addNote(new Annotation().setText(allergyIntoleranceSection.get(0).getText().getContentArray().toString()))
+          .addNote(new Annotation().setText(doc.select("content").text()))
           .addReaction(allergyIntoleranceReactionComponent);
     }
     return allergyIntolerance;

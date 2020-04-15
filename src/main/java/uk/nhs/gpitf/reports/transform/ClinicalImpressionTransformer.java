@@ -3,6 +3,9 @@ package uk.nhs.gpitf.reports.transform;
 import java.util.List;
 import org.hl7.fhir.dstu3.model.ClinicalImpression;
 import org.hl7.fhir.dstu3.model.ClinicalImpression.ClinicalImpressionStatus;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +28,12 @@ public class ClinicalImpressionTransformer {
         .getSectionsOfType(structuredBody, IUCDSSystems.SNOMED, "887181000000106");
     ClinicalImpression clinicalImpression = null;
     if (clinicalImpressionSection.size() > 0) {
+      String contentArray = clinicalImpressionSection.get(0).getText().xmlText();
+      Document doc = Jsoup.parse(contentArray, "", Parser.xmlParser());
       clinicalImpression = new ClinicalImpression()
           .setSubject(encounter.getSubject())
           .setStatus(ClinicalImpressionStatus.COMPLETED)
-          .setDescription(clinicalImpressionSection.get(0).getText().getContentArray().toString());
+          .setDescription(doc.select("content").text());
     }
     return clinicalImpression;
   }

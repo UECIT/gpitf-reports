@@ -7,6 +7,9 @@ import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementTaken;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +33,10 @@ public class MedicationTransformer {
     
     List<Dosage> dosages = new ArrayList<Dosage>();
     for (POCDMT000002UK01Section pocdmt000002uk01Section : medicationSection) {
-      StrucDocContent[] contentArray = pocdmt000002uk01Section.getText().getContentArray();
-      dosages.add(new Dosage().setText(contentArray.toString()));
+      //StrucDocContent[] contentArray = pocdmt000002uk01Section.getText().getContentArray();
+      String contentArray = pocdmt000002uk01Section.getText().xmlText();
+      Document doc = Jsoup.parse(contentArray, "", Parser.xmlParser());
+      dosages.add(new Dosage().setText(doc.select("content").text()));
     }
     
     MedicationStatement medication = null;

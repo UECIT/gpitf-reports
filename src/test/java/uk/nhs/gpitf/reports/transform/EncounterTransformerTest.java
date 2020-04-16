@@ -80,11 +80,11 @@ public class EncounterTransformerTest {
     assertThat(encounter.getStatus(), is(EncounterStatus.FINISHED));
 
     POCDMT000002UK01ClinicalDocument1 clinicalDocument = inputBundle.getClinicalDocument();
-    verify(episodeOfCareService).createEpisodeOfCare(same(clinicalDocument));
-    verify(encounterParticipantService).createParticipants(clinicalDocument);
+    verify(episodeOfCareService).createEpisodeOfCare(same(inputBundle), same(clinicalDocument));
+    verify(encounterParticipantService).createParticipants(inputBundle, clinicalDocument);
     verify(locationService).createFromEncompassingEncounter(clinicalDocument);
-    verify(organizationService).createServiceProvider(clinicalDocument);
-    verify(patientService).createPatient(clinicalDocument);
+    verify(organizationService).createServiceProvider(inputBundle, clinicalDocument);
+    verify(patientService).createPatient(inputBundle, clinicalDocument);
     verify(relatedPersonService).createRelatedPerson(inputBundle, encounter);
     verify(medicationService).createMedication(inputBundle, encounter);
     verify(allergyIntoleranceService).createAllergyIntolerance(inputBundle, encounter);

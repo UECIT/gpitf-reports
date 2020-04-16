@@ -42,14 +42,14 @@ public class EncounterTransformer {
 
     Encounter encounter = new Encounter();
     encounter.setStatus(EncounterStatus.FINISHED);
-    episodeOfCareService.createEpisodeOfCare(clinicalDocument)
+    episodeOfCareService.createEpisodeOfCare(inputBundle, clinicalDocument)
         .ifPresent(encounter::addEpisodeOfCare);
-    encounterParticipantService.createParticipants(clinicalDocument)
+    encounterParticipantService.createParticipants(inputBundle, clinicalDocument)
         .forEach(encounter::addParticipant);
     encounter.setPeriod(getEncounterPeriod(clinicalDocument));
     locationService.createFromEncompassingEncounter(clinicalDocument)
         .ifPresent(locationRef -> encounter.addLocation().setLocation(locationRef));
-    organizationService.createServiceProvider(clinicalDocument)
+    organizationService.createServiceProvider(inputBundle, clinicalDocument)
         .ifPresent(encounter::setServiceProvider);
     relatedPersonService.createRelatedPerson(inputBundle, encounter);
     medicationService.createMedication(inputBundle, encounter);
@@ -57,7 +57,7 @@ public class EncounterTransformer {
     triageReportService.createTriageReport(inputBundle, encounter);
     clinicalImpressionService.createClinicalImpression(inputBundle, encounter);
 //    encounter.addType(); //TODO: No mapping exists.
-    encounter.setSubject(patientService.createPatient(clinicalDocument));
+    encounter.setSubject(patientService.createPatient(inputBundle, clinicalDocument));
 //    encounter.setAppointment() TODO: NCTH-395
 //    encounter.addDiagnosis(); //TODO: No mapping exists.
 

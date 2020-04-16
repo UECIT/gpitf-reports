@@ -84,7 +84,7 @@ public class ReferralRequestTransformer {
 
     for (POCDMT000002UK01InformationRecipient recipient :
         clinicalDocument.getInformationRecipientArray()) {
-      referralRequest.addRecipient(healthcareServiceService.createHealthcareService(recipient));
+      referralRequest.addRecipient(healthcareServiceService.createHealthcareService(inputBundle, recipient));
     }
 
     PathwaysUtils.getOutcome(inputBundle.getPathwaysCase())

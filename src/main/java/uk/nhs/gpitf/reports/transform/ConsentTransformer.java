@@ -1,5 +1,6 @@
 package uk.nhs.gpitf.reports.transform;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,11 @@ import org.hl7.fhir.dstu3.model.Consent;
 import org.hl7.fhir.dstu3.model.Consent.ConsentDataComponent;
 import org.hl7.fhir.dstu3.model.Consent.ConsentDataMeaning;
 import org.hl7.fhir.dstu3.model.Consent.ConsentState;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Period;
@@ -22,6 +28,7 @@ import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Entry;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Observation;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Section;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01StructuredBody;
+import uk.nhs.connect.iucds.cda.ucr.StrucDocTable;
 import uk.nhs.gpitf.reports.constants.IUCDSSystems;
 import uk.nhs.gpitf.reports.constants.IUCDSTemplates;
 import uk.nhs.gpitf.reports.util.CodeUtil;
@@ -97,6 +104,21 @@ public class ConsentTransformer {
     List<POCDMT000002UK01Section> sections = StructuredBodyUtil.getSectionsOfType(
         structuredBody, IUCDSSystems.SNOMED, "887031000000108");
 
+    if (sections.size() > 0) {
+      String xmlText = sections.get(0).getTitle().xmlText();
+      Document doc = Jsoup.parse(xmlText, "", Parser.xmlParser());
+      String tableArray = sections.get(0).getText().xmlText();
+      Document doc2 = Jsoup.parse(tableArray, "", Parser.xmlParser());
+      ArrayList<String> downServers = new ArrayList<>();
+      Element table = doc2.select("table").get(0); //select the first table.
+      Elements rows = table.select("tr");
+
+      for (int i = 1; i < rows.size(); i++) { //first row is the col names so skip it.
+          Element row = rows.get(i);
+          Elements cols = row.select("td");
+          downServers.add(cols.select("td").text());
+      }
+    }
     for (POCDMT000002UK01Section section : sections) {
       II id = section.getId();
       consent.setSource(new Identifier().setValue(id.getRoot()));

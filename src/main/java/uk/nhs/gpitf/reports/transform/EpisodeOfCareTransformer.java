@@ -2,11 +2,15 @@ package uk.nhs.gpitf.reports.transform;
 
 import lombok.RequiredArgsConstructor;
 import org.hl7.fhir.dstu3.model.EpisodeOfCare;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
 import org.springframework.stereotype.Component;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01AssignedEntity;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Organization;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Person;
 import uk.nhs.gpitf.reports.service.PractitionerService;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.service.OrganizationService;
 
 @Component
@@ -17,12 +21,15 @@ public class EpisodeOfCareTransformer {
   private final OrganizationService organizationService;
 
   public EpisodeOfCare transformEpisodeOfCare(
-      POCDMT000002UK01AssignedEntity assignedEntity) {
+      InputBundle inputBundle, POCDMT000002UK01AssignedEntity assignedEntity) {
 
     EpisodeOfCare episodeOfCare = new EpisodeOfCare();
     if (assignedEntity.isSetAssignedPerson()) {
       POCDMT000002UK01Person assignedPerson = assignedEntity.getAssignedPerson();
-      episodeOfCare.setCareManager(practitionerService.createPractitioner(assignedPerson));
+      String displayName = assignedEntity.getCode() != null ? assignedEntity.getCode().getDisplayName() : null;
+      String repOrg = assignedEntity.isSetRepresentedOrganization() ? assignedEntity.getRepresentedOrganization().xmlText() : "";
+      Document doc = Jsoup.parse(repOrg, "", Parser.xmlParser());
+      episodeOfCare.setCareManager(practitionerService.createPractitioner(inputBundle, assignedPerson, displayName, doc.select("name").text()));
     }
 
     if (assignedEntity.isSetRepresentedOrganization()) {
@@ -30,7 +37,7 @@ public class EpisodeOfCareTransformer {
           .getRepresentedOrganization();
 
       episodeOfCare.setManagingOrganization(
-          organizationService.createOrganization(representedOrganization));
+          organizationService.createOrganization(inputBundle, representedOrganization));
     }
 
     return episodeOfCare;

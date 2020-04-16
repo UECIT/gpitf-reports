@@ -7,6 +7,7 @@ import org.hl7.fhir.dstu3.model.Reference;
 import org.springframework.stereotype.Service;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01EncompassingEncounter;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.transform.EpisodeOfCareTransformer;
 
 @Service
@@ -17,7 +18,7 @@ public class EpisodeOfCareService {
 
   private final EpisodeOfCareTransformer episodeOfCareTransformer;
 
-  public Optional<Reference> createEpisodeOfCare(POCDMT000002UK01ClinicalDocument1 clinicalDocument) {
+  public Optional<Reference> createEpisodeOfCare(InputBundle inputBundle, POCDMT000002UK01ClinicalDocument1 clinicalDocument) {
     POCDMT000002UK01EncompassingEncounter encompassingEncounter = clinicalDocument.getComponentOf()
         .getEncompassingEncounter();
 
@@ -27,7 +28,7 @@ public class EpisodeOfCareService {
     }
 
     EpisodeOfCare episodeOfCare = episodeOfCareTransformer
-        .transformEpisodeOfCare(encompassingEncounter.getResponsibleParty().getAssignedEntity());
+        .transformEpisodeOfCare(inputBundle, encompassingEncounter.getResponsibleParty().getAssignedEntity());
 
     return Optional.of(storageService.create(episodeOfCare));
   }

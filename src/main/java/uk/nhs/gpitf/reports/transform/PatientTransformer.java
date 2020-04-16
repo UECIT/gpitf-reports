@@ -25,6 +25,7 @@ import uk.nhs.gpitf.reports.enums.LanguageAbilityMode;
 import uk.nhs.gpitf.reports.enums.LanguageAbilityProficiency;
 import uk.nhs.gpitf.reports.enums.MaritalStatus;
 import uk.nhs.gpitf.reports.enums.NhsNumberVerificationStatus;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.service.OrganizationService;
 import uk.nhs.gpitf.reports.util.DateUtil;
 
@@ -36,7 +37,7 @@ public class PatientTransformer {
   private final HumanNameTransformer humanNameTransformer;
   private final OrganizationService organizationService;
 
-  public Patient transform(POCDMT000002UK01PatientRole patientRole) {
+  public Patient transform(InputBundle inputBundle, POCDMT000002UK01PatientRole patientRole) {
     var patient = new Patient();
 
     Stream.of(patientRole.getIdArray())
@@ -91,7 +92,7 @@ public class PatientTransformer {
 
     if (patientRole.isSetProviderOrganization()) {
       patient.addGeneralPractitioner(
-          organizationService.createOrganization(patientRole.getProviderOrganization()));
+          organizationService.createOrganization(inputBundle, patientRole.getProviderOrganization()));
     }
 
     return patient;

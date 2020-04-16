@@ -5,6 +5,7 @@ import org.hl7.fhir.dstu3.model.Practitioner;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.springframework.stereotype.Service;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Person;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.transform.PractitionerTransformer;
 
 @Service
@@ -15,8 +16,9 @@ public class PractitionerService {
 
   private final FhirStorageService storageService;
 
-  public Reference createPractitioner(POCDMT000002UK01Person assignedPerson) {
-    Practitioner practitioner = practitionerTransformer.transform(assignedPerson);
+  public Reference createPractitioner(InputBundle inputBundle, POCDMT000002UK01Person assignedPerson, String displayName, String name) {
+    Practitioner practitioner = practitionerTransformer.transform(assignedPerson, displayName, name);
+    inputBundle.addResource(practitioner);
     return storageService.create(practitioner);
   }
 }

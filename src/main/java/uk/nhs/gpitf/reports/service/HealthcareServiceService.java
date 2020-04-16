@@ -5,6 +5,7 @@ import org.hl7.fhir.dstu3.model.HealthcareService;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.springframework.stereotype.Service;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01InformationRecipient;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.transform.HealthcareServiceTransformer;
 
 @Service
@@ -14,10 +15,10 @@ public class HealthcareServiceService {
   private final FhirStorageService storageService;
   private final HealthcareServiceTransformer healthcareServiceTransformer;
 
-  public Reference createHealthcareService(POCDMT000002UK01InformationRecipient recipient) {
+  public Reference createHealthcareService(InputBundle inputBundle, POCDMT000002UK01InformationRecipient recipient) {
     HealthcareService healthcareService =
-        healthcareServiceTransformer.transformRecipient(recipient);
-
+        healthcareServiceTransformer.transformRecipient(inputBundle, recipient);
+    inputBundle.addResource(healthcareService);
     return createHealthcareService(healthcareService);
   }
 

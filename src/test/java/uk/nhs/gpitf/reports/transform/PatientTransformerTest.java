@@ -9,7 +9,9 @@ import static org.hamcrest.Matchers.is;
 import static uk.nhs.gpitf.reports.Matchers.isConcept;
 import static uk.nhs.gpitf.reports.Matchers.isNhsNumber;
 import static uk.nhs.gpitf.reports.Matchers.isReferenceWithDisplay;
-
+import java.io.IOException;
+import java.net.URL;
+import org.apache.xmlbeans.XmlException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +31,7 @@ import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Patient;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01PatientRole;
 import uk.nhs.connect.iucds.cda.ucr.TEL;
 import uk.nhs.connect.iucds.cda.ucr.TS;
+import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1.Factory;
 import uk.nhs.gpitf.reports.Stub;
 import uk.nhs.gpitf.reports.constants.FHIRSystems;
 import uk.nhs.gpitf.reports.constants.IUCDSSystems;
@@ -37,6 +40,7 @@ import uk.nhs.gpitf.reports.enums.LanguageAbilityMode;
 import uk.nhs.gpitf.reports.enums.LanguageAbilityProficiency;
 import uk.nhs.gpitf.reports.enums.MaritalStatus;
 import uk.nhs.gpitf.reports.enums.NhsNumberVerificationStatus;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.service.OrganizationService;
 import uk.nhs.gpitf.reports.util.DateUtil;
 
@@ -59,13 +63,17 @@ public class PatientTransformerTest {
   private POCDMT000002UK01Patient documentPatient;
   private POCDMT000002UK01LanguageCommunication documentLanguageCommunication;
   private POCDMT000002UK01Organization documentOrganization;
+  private InputBundle inputBundle;
 
   @Before
-  public void setup() {
+  public void setup() throws XmlException, IOException {
     documentPatientRole = POCDMT000002UK01PatientRole.Factory.newInstance();
     documentPatient = POCDMT000002UK01Patient.Factory.newInstance();
     documentLanguageCommunication = POCDMT000002UK01LanguageCommunication.Factory.newInstance();
     documentOrganization = POCDMT000002UK01Organization.Factory.newInstance();
+    URL resource = getClass().getResource("/example-clinical-doc.xml");
+    inputBundle = new InputBundle();
+    inputBundle.setClinicalDocument(Factory.parse(resource).getClinicalDocument());
   }
 
   private void linkDocuments() {
@@ -80,7 +88,7 @@ public class PatientTransformerTest {
     var identifier = Stub.createII(IUCDSSystems.LOCAL_PERSON, "testIdentifier", "testAuthority");
     documentPatientRole.setIdArray(new II[]{identifier});
 
-    var patient = patientTransformer.transform(documentPatientRole);
+    var patient = patientTransformer.transform(inputBundle, documentPatientRole);
 
     assertThat(patient.getIdentifier(), contains(
         both(hasProperty("value", equalTo("testIdentifier")))
@@ -92,7 +100,7 @@ public class PatientTransformerTest {
     var verifiedNhsNumber = Stub.createII(IUCDSSystems.NHS_NUMBER_VERIFIED, "012345678");
     documentPatientRole.setIdArray(new II[]{verifiedNhsNumber});
 
-    var patient = patientTransformer.transform(documentPatientRole);
+    var patient = patientTransformer.transform(inputBundle, documentPatientRole);
 
     var identifier = patient.getIdentifierFirstRep();
     assertThat(identifier, isNhsNumber("012345678"));
@@ -106,7 +114,7 @@ public class PatientTransformerTest {
     var unverifiedNhsNumber = Stub.createII(IUCDSSystems.NHS_NUMBER_UNVERIFIED, "012345678");
     documentPatientRole.setIdArray(new II[]{unverifiedNhsNumber});
 
-    var patient = patientTransformer.transform(documentPatientRole);
+    var patient = patientTransformer.transform(inputBundle, documentPatientRole);
 
     var identifier = patient.getIdentifierFirstRep();
     assertThat(identifier, isNhsNumber("012345678"));
@@ -119,7 +127,7 @@ public class PatientTransformerTest {
   public void transformOnlyTelecom() {
     documentPatientRole.setTelecomArray(new TEL[] { Stub.tel() });
 
-    var patient = patientTransformer.transform(documentPatientRole);
+    var patient = patientTransformer.transform(inputBundle, documentPatientRole);
 
     var telecom = patient.getTelecomFirstRep();
     assertThat(telecom.getValue(), is("012345678"));
@@ -136,7 +144,7 @@ public class PatientTransformerTest {
 
     linkDocuments();
 
-    var patient = patientTransformer.transform(documentPatientRole);
+    var patient = patientTransformer.transform(inputBundle, documentPatientRole);
     var communication = patient.getCommunicationFirstRep();
 
     assertThat(communication.getLanguage(), isConcept(Language.EN));
@@ -162,7 +170,7 @@ public class PatientTransformerTest {
 
     linkDocuments();
 
-    var patient = patientTransformer.transform(documentPatientRole);
+    var patient = patientTransformer.transform(inputBundle, documentPatientRole);
     var communication = patient.getExtensionsByUrl(FHIRSystems.NHS_COMMUNICATION).get(0);
 
     assertThat(
@@ -198,7 +206,7 @@ public class PatientTransformerTest {
 
     linkDocuments();
 
-    var patient = patientTransformer.transform(documentPatientRole);
+    var patient = patientTransformer.transform(inputBundle, documentPatientRole);
 
     assertThat(patient.getBirthDate(), equalTo(DateUtil.parse("19750915")));
     assertThat(patient.getGender().toCode(), is("male"));
@@ -208,6 +216,6 @@ public class PatientTransformerTest {
     Mockito.verify(humanNameTransformer)
         .transform(documentPatientRole.getPatient().getNameArray(0));
     Mockito.verify(organizationService)
-        .createOrganization(documentPatientRole.getProviderOrganization());
+        .createOrganization(inputBundle, documentPatientRole.getProviderOrganization());
   }
 }

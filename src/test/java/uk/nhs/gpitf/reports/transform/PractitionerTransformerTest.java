@@ -33,7 +33,7 @@ public class PractitionerTransformerTest {
     var name = Stub.fullPersonName();
     person.setNameArray(new PN[]{name});
 
-    Practitioner practitioner = practitionerTransformer.transform(person);
+    Practitioner practitioner = practitionerTransformer.transform(person, null, null);
 
     Mockito.verify(humanNameTransformer).transform(Mockito.any(PN.class));
   }

@@ -21,6 +21,7 @@ import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1;
 import uk.nhs.connect.iucds.cda.ucr.ClinicalDocumentDocument1.Factory;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01InformationRecipient;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01IntendedRecipient;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.service.LocationService;
 import uk.nhs.gpitf.reports.service.OrganizationService;
 
@@ -40,17 +41,20 @@ public class HealthcareServiceTransformerTest {
 
   private Reference organizationRef = new Reference("Organization/1");
   private Reference locationRef = new Reference("Location/1");
-
+  private InputBundle inputBundle;
+  
   @Before
   public void setup() throws IOException, XmlException {
     URL resource = getClass().getResource("/example-clinical-doc.xml");
+    inputBundle = new InputBundle();
+    inputBundle.setClinicalDocument(Factory.parse(resource).getClinicalDocument());
     clinicalDocument = Factory.parse(resource);
 
     POCDMT000002UK01IntendedRecipient intendedRecipient = clinicalDocument.getClinicalDocument()
         .getInformationRecipientArray(0).getIntendedRecipient();
     when(locationService.createFromIntendedRecipient(intendedRecipient))
         .thenReturn(Optional.of(locationRef));
-    when(organizationService.createOrganization(intendedRecipient.getReceivedOrganization()))
+    when(organizationService.createOrganization(inputBundle, intendedRecipient.getReceivedOrganization()))
         .thenReturn(organizationRef);
   }
 
@@ -60,10 +64,10 @@ public class HealthcareServiceTransformerTest {
         clinicalDocument.getClinicalDocument().getInformationRecipientArray(0);
 
     HealthcareService healthcareService = HealthcareServiceTransformer
-        .transformRecipient(recipient);
+        .transformRecipient(inputBundle, recipient);
 
     verify(organizationService)
-        .createOrganization(recipient.getIntendedRecipient().getReceivedOrganization());
+        .createOrganization(inputBundle, recipient.getIntendedRecipient().getReceivedOrganization());
     verify(locationService).createFromIntendedRecipient(recipient.getIntendedRecipient());
 
     assertEquals("name", "Thames Medical Practice", healthcareService.getName());

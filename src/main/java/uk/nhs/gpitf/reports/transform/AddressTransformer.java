@@ -1,7 +1,6 @@
 package uk.nhs.gpitf.reports.transform;
 
 import java.util.Arrays;
-import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.dstu3.model.Address;
 import org.springframework.stereotype.Component;
 import uk.nhs.connect.iucds.cda.ucr.AD;

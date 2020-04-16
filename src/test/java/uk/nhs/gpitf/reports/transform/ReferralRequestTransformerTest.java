@@ -64,7 +64,7 @@ public class ReferralRequestTransformerTest {
 
     Mockito.when(conditionService.create(any())).thenReturn(conditionRef);
     Mockito.when(healthcareServiceService
-        .createHealthcareService(any(POCDMT000002UK01InformationRecipient.class)))
+        .createHealthcareService(any(InputBundle.class), any(POCDMT000002UK01InformationRecipient.class)))
         .thenReturn(healthcareServiceRef);
   }
 
@@ -96,7 +96,7 @@ public class ReferralRequestTransformerTest {
         referralRequest.getReasonReferenceFirstRep().equalsDeep(conditionRef));
 
     verify(healthcareServiceService, times(2))
-        .createHealthcareService(any(POCDMT000002UK01InformationRecipient.class));
+        .createHealthcareService(any(InputBundle.class), any(POCDMT000002UK01InformationRecipient.class));
 
     var conditionCaptor = ArgumentCaptor.forClass(Condition.class);
     verify(conditionService).create(conditionCaptor.capture());

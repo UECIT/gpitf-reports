@@ -11,6 +11,7 @@ import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01InformationRecipient;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01IntendedRecipient;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Organization;
 import uk.nhs.connect.iucds.cda.ucr.TEL;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.service.LocationService;
 import uk.nhs.gpitf.reports.service.OrganizationService;
 import uk.nhs.gpitf.reports.util.NodeUtil;
@@ -23,7 +24,7 @@ public class HealthcareServiceTransformer {
   private final OrganizationService organizationService;
 
   public HealthcareService transformRecipient(
-      POCDMT000002UK01InformationRecipient informationRecipient) {
+      InputBundle inputBundle, POCDMT000002UK01InformationRecipient informationRecipient) {
 
     POCDMT000002UK01IntendedRecipient intendedRecipient =
         informationRecipient.getIntendedRecipient();
@@ -45,7 +46,7 @@ public class HealthcareServiceTransformer {
       POCDMT000002UK01Organization receivedOrganization =
           intendedRecipient.getReceivedOrganization();
 
-      healthcareService.setProvidedBy(organizationService.createOrganization(receivedOrganization));
+      healthcareService.setProvidedBy(organizationService.createOrganization(inputBundle, receivedOrganization));
       if (receivedOrganization.sizeOfNameArray() > 0) {
         ON name = receivedOrganization.getNameArray(0);
         healthcareService.setName(NodeUtil.getAllText(name.getDomNode()));

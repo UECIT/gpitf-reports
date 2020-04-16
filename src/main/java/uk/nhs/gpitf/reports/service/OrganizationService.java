@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01ClinicalDocument1;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01EncompassingEncounter;
 import uk.nhs.connect.iucds.cda.ucr.POCDMT000002UK01Organization;
+import uk.nhs.gpitf.reports.model.InputBundle;
 import uk.nhs.gpitf.reports.transform.OrganizationTransformer;
 
 @Service
@@ -18,7 +19,7 @@ public class OrganizationService {
 
   private final FhirStorageService storageService;
 
-  public Optional<Reference> createServiceProvider(POCDMT000002UK01ClinicalDocument1 clinicalDocument) {
+  public Optional<Reference> createServiceProvider(InputBundle inputBundle, POCDMT000002UK01ClinicalDocument1 clinicalDocument) {
     POCDMT000002UK01EncompassingEncounter encompassingEncounter = clinicalDocument.getComponentOf()
         .getEncompassingEncounter();
 
@@ -29,14 +30,15 @@ public class OrganizationService {
       POCDMT000002UK01Organization serviceProviderOrganization = encompassingEncounter.getLocation()
           .getHealthCareFacility()
           .getServiceProviderOrganization();
-      return Optional.of(createOrganization(serviceProviderOrganization));
+      return Optional.of(createOrganization(inputBundle, serviceProviderOrganization));
     }
 
     return Optional.empty();
   }
 
-  public Reference createOrganization(POCDMT000002UK01Organization docOrg) {
+  public Reference createOrganization(InputBundle inputBundle, POCDMT000002UK01Organization docOrg) {
     Organization organization = organizationTransformer.transform(docOrg);
+    inputBundle.addResource(organization);
     return storageService.create(organization);
   }
 
